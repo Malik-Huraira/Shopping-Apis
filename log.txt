@@ -1,0 +1,50 @@
+[2025-03-24 09:53:51] User: johndoe@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-03-24 09:54:39] User: malikhurara.123gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-24 09:55:59] User: malikhurara.123gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-24 09:56:10] User: malikhurara.123gmail.com - Action: Signup - Status: SUCCESS
+[2025-03-24 10:42:39] User: test@example.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-03-24 10:44:17] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Invalid password)
+[2025-03-24 10:46:00] User: ahmedkhan@gmail.com - Action: Signup - Status: SUCCESS
+[2025-03-24 10:46:50] User: ahmedkhan@gmail.com - Action: Login - Status: FAILED (Database error)
+[2025-03-24 10:56:29] User: ahmedkhan@gmail.com - Action: Login - Status: SUCCESS
+[2025-03-24 11:03:29] User: ahmedkhan@gmail.com - Action: Login - Status: SUCCESS
+[2025-03-24 11:03:46] User: Unknown - Action: Logout - Status: FAILED (Unauthorized)
+[2025-03-24 11:03:50] User: Unknown - Action: Logout - Status: FAILED (Unauthorized)
+[2025-03-24 11:09:52] User: Unknown - Action: Logout - Status: SUCCESS
+[2025-03-24 13:18:32] User: ahmedkhan@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-03-25 10:01:08] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:02:01] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:02:41] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:08:54] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:08:55] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:11:14] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:14:36] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:15:18] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:16:06] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:16:08] User: johndoe@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:31:02] User: johndoe@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-03-25 10:32:18] User: aliraza@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:32:43] User: aliraza@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:37:20] User: aliraza@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:38:03] User: aliraza@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:43:23] User: aliraza@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:49:30] User: alikhan@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:51:44] User: alikhan@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:55:13] User: alikhan@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:55:41] User: alikhan@example.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-03-25 10:56:00] User: alikhan@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 10:59:09] User: alikhan@example.com - Action: Signup - Status: FAILED (Phone number already exists)
+[2025-03-25 10:59:19] User: alikhan@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 11:04:41] User: alikhan@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-03-25 11:05:14] User: fatima.ahmad@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 11:08:25] User: fatima.ahmad@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-03-25 11:39:44] User: fatima.ahmad@example.com - Action: Signup - Status: SUCCESS
+[2025-03-25 11:40:34] User: fatima.ahmad@example.com - Action: Login - Status: FAILED (Database error)
+[2025-03-25 11:41:25] User: fatima.ahmad@example.com - Action: Login - Status: SUCCESS
+[2025-03-25 11:41:55] User: Unknown - Action: Logout - Status: FAILED (Unauthorized)
+[2025-03-25 11:42:43] User: Unknown - Action: Logout - Status: SUCCESS
+[2025-03-25 11:43:55] User: fatima.ahmad@example.com - Action: Login - Status: SUCCESS
+[2025-03-25 11:45:44] User: admin@example.com - Action: Signup - Status: FAILED (Phone number already exists)
+[2025-03-25 11:46:21] User: admin@example.com - Action: Signup - Status: SUCCESS
+[2025-03-25 11:46:48] User: admin@example.com - Action: Login - Status: SUCCESS
+[2025-03-25 11:58:52] User: updateduser@example.com - Action: Signup - Status: SUCCESS
