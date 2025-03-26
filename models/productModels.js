@@ -1,5 +1,5 @@
-const db = require('../config/db');
-const queries = require('../config/queries');
+const db = require("../config/db");
+const queries = require("../config/queries");
 
 const getAllProducts = async () => {
     const [products] = await db.query(queries.GET_ALL_PRODUCTS);

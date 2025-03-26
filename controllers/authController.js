@@ -1,9 +1,9 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require('../config/db');
+const db = require("../config/db");
 const queries = require("../config/queries");
-const { findUserByEmail, createUser } = require("../models/userModel");
-const logActivity = require("../utils/logger"); // Import logging utility
+const { findUserByEmail, findUserByPhone, createUser } = require("../models/userModel");
+const logActivity = require("../utils/logger"); 
 
 const signupUser = async (req, res) => {
     try {
@@ -12,33 +12,36 @@ const signupUser = async (req, res) => {
         if (!name || !email || !password || !role || !phone_number) {
             return res.status(400).json({ error: "Name, Email, Password, Role, and Phone Number are required" });
         }
+
         const validRoles = ["admin", "user"];
         if (!validRoles.includes(role)) {
             return res.status(400).json({ error: "Invalid role. Allowed values: admin, user" });
         }
 
-        // Check if email already exists
+       
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
             logActivity(email, "Signup", "FAILED (User already exists)");
             return res.status(400).json({ error: "User with this email already exists" });
         }
 
-        // Check if phone number already exists
-        const [existingPhone] = await db.query("SELECT * FROM users WHERE phone_number = ?", [phone_number]);
-        if (existingPhone.length > 0) {
+        
+        const existingPhone = await findUserByPhone(phone_number);
+        if (existingPhone) {
             logActivity(email, "Signup", "FAILED (Phone number already exists)");
             return res.status(400).json({ error: "User with this phone number already exists" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+      
+        const hashedPassword = await bcrypt.hash(password, 12);
         const userId = await createUser({ name, email, password: hashedPassword, phone_number, status, role, address, description });
 
         logActivity(email, "Signup", "SUCCESS");
         res.status(201).json({ message: "User registered successfully", userId });
     } catch (err) {
+        console.error("Signup error:", err);
         logActivity(req.body.email, "Signup", "FAILED (Database error)");
-        res.status(500).json({ error: "Database error", details: err.message });
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
     }
 };
 
@@ -61,15 +64,17 @@ const loginUser = async (req, res) => {
             return res.status(401).json({ error: "Invalid email or password" });
         }
 
-        const token = jwt.sign({ userId: user.id }, "your_secret_key_here", { expiresIn: "1h" });
+        // Generate JWT token
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "your_secret_key_here", { expiresIn: "1h" });
 
         await db.query(queries.INSERT_SESSION, [user.id, token]);
 
         logActivity(email, "Login", "SUCCESS");
         res.status(200).json({ message: "Login successful", token });
     } catch (err) {
+        console.error("Login error:", err);
         logActivity(req.body.email, "Login", "FAILED (Database error)");
-        res.status(500).json({ error: "Database error", details: err.message });
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
     }
 };
 
@@ -78,8 +83,8 @@ const logoutUser = async (req, res) => {
         const token = req.headers.authorization?.split(" ")[1];
 
         if (!token) {
-            logActivity("Unknown", "Logout", "FAILED (Unauthorized)");
-            return res.status(401).json({ error: "Unauthorized" });
+            logActivity("Unknown", "Logout", "FAILED (Missing token)");
+            return res.status(401).json({ error: "Unauthorized. No token provided." });
         }
 
         await db.query(queries.DELETE_SESSION, [token]);
@@ -87,8 +92,9 @@ const logoutUser = async (req, res) => {
         logActivity("Unknown", "Logout", "SUCCESS");
         res.status(200).json({ message: "Logged out successfully" });
     } catch (err) {
+        console.error("Logout error:", err);
         logActivity("Unknown", "Logout", "FAILED (Database error)");
-        res.status(500).json({ error: "Database error", details: err.message });
+        res.status(500).json({ error: "Internal Server Error", details: err.message });
     }
 };
 
