@@ -26,11 +26,7 @@ const createOrder = async (user_id, products) => {
 
 const getOrderById = async (id) => {
     const [order] = await db.query(queries.GET_ORDER_BY_ID, [id]);
-    if (order.length === 0) return null;
-
-    const [items] = await db.query(queries.GET_ORDER_ITEMS, [id]);
-
-    return { order: order[0], items };
+    return order.length ? order : null;
 };
 
 const getUserOrders = async (user_id) => {
