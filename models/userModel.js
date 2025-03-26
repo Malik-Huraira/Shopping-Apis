@@ -19,7 +19,7 @@ const findUserByEmail = async (email) => {
 };
 
 const findUserByPhone = async (phone_number) => {
-    const [user] = await db.query("SELECT * FROM users WHERE phone_number = ?", [phone_number]);
+    const [user] = await db.query(queries.GET_USER_BY_PHONE, [phone_number]);
     return user.length ? user[0] : null;
 };
 
