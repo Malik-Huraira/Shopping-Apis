@@ -19,13 +19,34 @@ const createProduct = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     try {
-        const products = await productModel.getAllProducts();
-        res.json(products);
+        let { page, limit } = req.query;
+
+        // Default values if not provided
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+        const offset = (page - 1) * limit;
+
+        // Fetch paginated products
+        const products = await productModel.getPaginatedProducts(limit, offset);
+
+        // Fetch total products count
+        const totalProducts = await productModel.getTotalProductsCount();
+
+        res.status(200).json({
+            products,
+            currentPage: page,
+            totalPages: Math.ceil(totalProducts / limit),
+            totalProducts,
+            limit,
+        });
+
     } catch (error) {
         console.error("Get All Products Error:", error);
         res.status(500).json({ error: "Internal Server Error", details: error.message });
     }
 };
+
+
 
 const getProductById = async (req, res) => {
     try {

@@ -11,9 +11,10 @@ const authenticateUser = async (req, res, next) => {
         }
 
         const token = authHeader.split(' ')[1];
-
+        console.log("Extracted Token:", token); 
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("Decoded Token:", decoded); 
         req.user = decoded;
 
 
@@ -27,21 +28,7 @@ const authenticateUser = async (req, res, next) => {
         return res.status(401).json({ error: "Invalid token", details: err.message });
     }
 };
-const authorizeRoles = (...roles) => {
-    return (req, res, next) => {
-        const user = req.user;
 
-        if (!user) {
-            return res.status(401).json({ error: "Unauthorized - No User Data" });
-        }
 
-        if (!roles.includes(user.role)) {
-            return res.status(403).json({ error: "Forbidden - Insufficient Permissions" });
-        }
-
-        next();
-    };
-};
-
-module.exports = { authorizeRoles, authenticateUser };
+module.exports = authenticateUser ;
 

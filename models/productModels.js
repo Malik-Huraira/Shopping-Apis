@@ -26,4 +26,22 @@ const deleteProduct = async (id) => {
     return result.affectedRows;
 };
 
-module.exports = { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct };
+const getPaginatedProducts = async (limit, offset) => {
+    const [products] = await db.query(queries.GET_PAGINATED_PRODUCTS, [limit, offset]);
+    return products;
+};
+
+const getTotalProductsCount = async () => {
+    const [result] = await db.query(queries.GET_TOTAL_PRODUCTS_COUNT);
+    return result[0].total;
+};
+
+module.exports = {
+    getAllProducts,
+    getProductById,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    getPaginatedProducts,
+    getTotalProductsCount
+};

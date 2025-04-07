@@ -34,15 +34,28 @@ const getOrderById = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
     try {
-        const user_id = parseInt(req.query.user_id, 10);
+        let { page, limit } = req.query;
+        const user_id = req.params.userId;
 
-        if (isNaN(user_id)) {
-            return res.status(400).json({ error: "Valid User ID is required" });
-        }
+        // Set default values if not provided
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+        const offset = (page - 1) * limit;
 
-        const orders = await orderModel.getUserOrders(user_id);
+        // Fetch paginated orders
+        const orders = await orderModel.getPaginatedUserOrders(user_id, limit, offset);
 
-        res.status(200).json(orders);
+        // Fetch total orders count for the user
+        const totalOrders = await orderModel.getTotalUserOrdersCount(user_id);
+
+        res.status(200).json({
+            orders,
+            currentPage: page,
+            totalPages: Math.ceil(totalOrders / limit),
+            totalOrders,
+            limit,
+        });
+
     } catch (error) {
         console.error("Get User Orders Error:", error);
         res.status(500).json({ error: "Internal Server Error", details: error.message });

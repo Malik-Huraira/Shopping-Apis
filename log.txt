@@ -48,3 +48,22 @@
 [2025-03-25 11:46:21] User: admin@example.com - Action: Signup - Status: SUCCESS
 [2025-03-25 11:46:48] User: admin@example.com - Action: Login - Status: SUCCESS
 [2025-03-25 11:58:52] User: updateduser@example.com - Action: Signup - Status: SUCCESS
+[2025-03-26 12:55:17] User: MhAli@example.com - Action: Signup - Status: SUCCESS
+[2025-03-26 12:56:02] User: MhAli@example.com - Action: Login - Status: SUCCESS
+[2025-03-26 13:08:18] User: MhAli@example.com - Action: Login - Status: SUCCESS
+[2025-03-26 13:11:07] User: MhAli@example.com - Action: Login - Status: SUCCESS
+[2025-03-27 10:21:59] User: fatima.ahmed@example.com - Action: Signup - Status: SUCCESS
+[2025-03-27 10:22:40] User: fatima.ahmed@example.com - Action: Login - Status: SUCCESS
+[2025-03-27 11:05:31] User: usman.m@example.com - Action: Signup - Status: SUCCESS
+[2025-03-27 11:06:25] User: usman.m@example.com - Action: Login - Status: SUCCESS
+[2025-03-27 11:25:01] User: usman.m@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:07:16] User: johndoe@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-07 12:07:25] User: john@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-07 12:07:34] User: john1234@example.com - Action: Signup - Status: FAILED (Phone number already exists)
+[2025-04-07 12:07:43] User: john1234@example.com - Action: Signup - Status: SUCCESS
+[2025-04-07 12:09:42] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:25:45] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:25:47] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:25:48] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:25:49] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-07 12:25:50] User: john1234@example.com - Action: Login - Status: SUCCESS

@@ -53,3 +53,8 @@ FROM
 WHERE 
     TABLE_SCHEMA = 'sys' 
     AND REFERENCED_TABLE_NAME IS NOT NULL;
+INSERT INTO users (name, email, phone_number, status, address, description, role,password) 
+VALUES ('John ', 'john@example.com', '1234567890', 'active', '123 Street, City', 'Regular customer', 'admin', 'strong1223');
+INSERT INTO products (name, description, price, stock) 
+VALUES ('Laptop', 'Gaming Laptop', 1500.00, 10),
+       ('Smartphone', 'Latest Model Smartphone', 800.00, 20);

@@ -48,5 +48,22 @@ const deleteOrder = async (id) => {
     const [result] = await db.query(queries.DELETE_ORDER, [id]);
     return result.affectedRows;
 };
+const getPaginatedUserOrders = async (user_id, limit, offset) => {
+    const [orders] = await db.query(queries.GET_PAGINATED_USER_ORDERS, [user_id, limit, offset]);
+    return orders;
+};
 
-module.exports = { createOrder, getOrderById, getUserOrders, updateOrderStatus, deleteOrder };
+const getTotalUserOrdersCount = async (user_id) => {
+    const [result] = await db.query(queries.GET_TOTAL_USER_ORDERS_COUNT, [user_id]);
+    return result[0].total;
+};
+
+module.exports = {
+    createOrder,
+    getOrderById,
+    getUserOrders,
+    updateOrderStatus,
+    deleteOrder,
+    getPaginatedUserOrders,
+    getTotalUserOrdersCount
+};

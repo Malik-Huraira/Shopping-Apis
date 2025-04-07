@@ -32,12 +32,33 @@ const createUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await userModel.getAllUsers();
-        res.status(200).json(users);
+        let { page, limit } = req.query;
+
+        // Set default values if not provided
+        page = parseInt(page) || 1; // Default to page 1
+        limit = parseInt(limit) || 10; // Default to 10 users per page
+
+        const offset = (page - 1) * limit; // Calculate offset
+
+        // Fetch paginated users
+        const users = await userModel.getPaginatedUsers(limit, offset);
+
+        // Fetch total users count
+        const totalUsers = await userModel.getTotalUsersCount();
+
+        res.status(200).json({
+            users,
+            currentPage: page,
+            totalPages: Math.ceil(totalUsers / limit),
+            totalUsers,
+            limit,
+        });
+
     } catch (err) {
         res.status(500).json({ error: 'Database error', details: err.message });
     }
 };
+;
 
 const getUserById = async (req, res) => {
     try {

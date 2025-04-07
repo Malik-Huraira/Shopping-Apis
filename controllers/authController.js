@@ -65,7 +65,11 @@ const loginUser = async (req, res) => {
         }
 
         // Generate JWT token
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "your_secret_key_here", { expiresIn: "1h" });
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET || "MY_SECURE_SECRET_12345",
+            { expiresIn: "1h" }
+        );
 
         await db.query(queries.INSERT_SESSION, [user.id, token]);
 

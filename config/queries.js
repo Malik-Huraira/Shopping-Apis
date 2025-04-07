@@ -9,6 +9,8 @@ const queries = {
     DELETE_USER: "DELETE FROM users WHERE id = ?",
     INSERT_SESSION: "INSERT INTO sessions (user_id, token) VALUES (?, ?)",
     DELETE_SESSION: "DELETE FROM sessions WHERE token = ?",
+    GET_PAGINATED_USERS: "SELECT * FROM users LIMIT ? OFFSET ?",
+    GET_TOTAL_USERS_COUNT: "SELECT COUNT(*) AS total FROM users",
 
     // Products Queries
     GET_ALL_PRODUCTS: "SELECT * FROM products",
@@ -16,6 +18,8 @@ const queries = {
     INSERT_PRODUCT: "INSERT INTO products (name, description, price, stock) VALUES (?, ?, ?, ?)",
     UPDATE_PRODUCT: "UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?",
     DELETE_PRODUCT: "DELETE FROM products WHERE id = ?",
+    GET_PAGINATED_PRODUCTS: "SELECT * FROM products LIMIT ? OFFSET ?",
+    GET_TOTAL_PRODUCTS_COUNT: "SELECT COUNT(*) AS total FROM products",
 
     // Orders Queries (Using Joins)
     GET_PRODUCT_PRICE: "SELECT price FROM products WHERE id = ?",
@@ -41,6 +45,8 @@ const queries = {
     `,
     UPDATE_ORDER_STATUS: "UPDATE orders SET status = ? WHERE id = ?",
     DELETE_ORDER: "DELETE FROM orders WHERE id = ?",
+    GET_PAGINATED_USER_ORDERS: "SELECT * FROM orders WHERE user_id = ? LIMIT ? OFFSET ?",
+    GET_TOTAL_USER_ORDERS_COUNT: "SELECT COUNT(*) AS total FROM orders WHERE user_id = ?"
 };
 
 module.exports = queries;
