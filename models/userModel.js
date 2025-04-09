@@ -9,7 +9,8 @@ const extractUserFields = (userData) => {
         userData.status,
         userData.role,
         userData.address,
-        userData.description
+        userData.description,
+        userData.password
     ];
 };
 

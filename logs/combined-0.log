@@ -1,0 +1,60 @@
+Error: bind EADDRINUSE null:5001
+    at listenOnPrimaryHandle (node:net:1553:18)
+    at shared (node:internal/cluster/child:153:3)
+    at Worker.<anonymous> (node:internal/cluster/child:106:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:525:35)
+    at emit (node:internal/child_process:937:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+2025-04-08T17:34:30: 🔐 HTTPS server running at https://localhost:5000
+2025-04-08T17:34:31: ✅ Database connected successfully
+Error: bind EADDRINUSE null:5001
+    at listenOnPrimaryHandle (node:net:1553:18)
+    at shared (node:internal/cluster/child:153:3)
+    at Worker.<anonymous> (node:internal/cluster/child:106:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:525:35)
+    at emit (node:internal/child_process:937:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+2025-04-08T17:35:01: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:35:02: ✅ Database connected successfully
+2025-04-08T17:35:06: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:35:06: ✅ Database connected successfully
+2025-04-08T17:35:14: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:35:14: ✅ Database connected successfully
+Error: bind EADDRINUSE null:5000
+    at listenOnPrimaryHandle (node:net:1553:18)
+    at shared (node:internal/cluster/child:153:3)
+    at Worker.<anonymous> (node:internal/cluster/child:106:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:525:35)
+    at emit (node:internal/child_process:937:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+Error: bind EADDRINUSE null:5000
+    at listenOnPrimaryHandle (node:net:1553:18)
+    at shared (node:internal/cluster/child:153:3)
+    at Worker.<anonymous> (node:internal/cluster/child:106:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:525:35)
+    at emit (node:internal/child_process:937:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+2025-04-08T17:36:13: 🔐 HTTPS server running at https://localhost:5000
+2025-04-08T17:36:13: ✅ Database connected successfully
+2025-04-08T17:36:28: 🔐 HTTPS server running at https://localhost:5000
+2025-04-08T17:36:28: ✅ Database connected successfully
+Error: bind EADDRINUSE null:5001
+    at listenOnPrimaryHandle (node:net:1553:18)
+    at shared (node:internal/cluster/child:153:3)
+    at Worker.<anonymous> (node:internal/cluster/child:106:7)
+    at process.onInternalMessage (node:internal/cluster/utils:49:5)
+    at process.emit (node:events:525:35)
+    at emit (node:internal/child_process:937:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:83:21)
+2025-04-08T17:42:13: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:42:13: ✅ Database connected successfully
+2025-04-08T17:42:18: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:42:18: ✅ Database connected successfully
+2025-04-08T17:42:22: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:42:22: ✅ Database connected successfully
+2025-04-08T17:42:27: 🔐 HTTPS server running at https://localhost:5001
+2025-04-08T17:42:27: ✅ Database connected successfully
