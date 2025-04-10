@@ -1,32 +1,31 @@
-const userModel = require('../models/userModel'); // Importing User Model
+const userModel = require('../models/userModel');
 const bcrypt = require('bcryptjs');
+const HTTP = require('../utils/httpStatusCodes');
 
 const createUser = async (req, res) => {
     try {
         const { name, email, password, phone_number, status, role, address, description } = req.body;
 
         if (!name || !email || !password || !phone_number || !status || !role) {
-            return res.status(400).json({ error: "Missing required fields (Name, Email, Password, Phone, Status, Role)" });
+            return res.status(HTTP.BadRequest).json({ error: "Missing required fields (Name, Email, Password, Phone, Status, Role)" });
         }
 
-        // Check if user already exists
         const existingUser = await userModel.findUserByEmail(email);
         if (existingUser) {
-            return res.status(400).json({ error: "User with this email already exists" });
+            return res.status(HTTP.BadRequest).json({ error: "User with this email already exists" });
         }
 
-        // Hashing Password
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const userId = await userModel.createUser({
             name, email, password: hashedPassword, phone_number, status, role, address, description
         });
 
-        res.status(201).json({ message: "User added successfully", id: userId });
+        res.status(HTTP.Created).json({ message: "User added successfully", id: userId });
 
     } catch (err) {
-        console.error("Error:", err.message);
-        res.status(500).json({ error: "Database error", details: err.message });
+        console.error("Create User Error:", err.message);
+        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
     }
 };
 
@@ -34,19 +33,14 @@ const getAllUsers = async (req, res) => {
     try {
         let { page, limit } = req.query;
 
-        // Set default values if not provided
-        page = parseInt(page) || 1; // Default to page 1
-        limit = parseInt(limit) || 10; // Default to 10 users per page
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+        const offset = (page - 1) * limit;
 
-        const offset = (page - 1) * limit; // Calculate offset
-
-        // Fetch paginated users
         const users = await userModel.getPaginatedUsers(limit, offset);
-
-        // Fetch total users count
         const totalUsers = await userModel.getTotalUsersCount();
 
-        res.status(200).json({
+        res.status(HTTP.OK).json({
             users,
             currentPage: page,
             totalPages: Math.ceil(totalUsers / limit),
@@ -55,20 +49,19 @@ const getAllUsers = async (req, res) => {
         });
 
     } catch (err) {
-        res.status(500).json({ error: 'Database error', details: err.message });
+        res.status(HTTP.InternalServerError).json({ error: 'Database error', details: err.message });
     }
 };
-;
 
 const getUserById = async (req, res) => {
     try {
         const user = await userModel.getUserById(req.params.id);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }
-        res.status(200).json(user);
+        res.status(HTTP.OK).json(user);
     } catch (err) {
-        res.status(500).json({ error: 'Database error', details: err.message });
+        res.status(HTTP.InternalServerError).json({ error: 'Database error', details: err.message });
     }
 };
 
@@ -76,11 +69,11 @@ const updateUser = async (req, res) => {
     try {
         const affectedRows = await userModel.updateUser(req.params.id, req.body);
         if (affectedRows === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }
-        res.status(200).json({ message: 'User updated successfully' });
+        res.status(HTTP.OK).json({ message: 'User updated successfully' });
     } catch (err) {
-        res.status(500).json({ error: 'Database error', details: err.message });
+        res.status(HTTP.InternalServerError).json({ error: 'Database error', details: err.message });
     }
 };
 
@@ -88,11 +81,11 @@ const deleteUser = async (req, res) => {
     try {
         const affectedRows = await userModel.deleteUser(req.params.id);
         if (affectedRows === 0) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(HTTP.OK).json({ message: 'User deleted successfully' });
     } catch (err) {
-        res.status(500).json({ error: 'Database error', details: err.message });
+        res.status(HTTP.InternalServerError).json({ error: 'Database error', details: err.message });
     }
 };
 
