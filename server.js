@@ -52,10 +52,6 @@ app.get('/profile', (req, res) => {
     res.json({ message: "This is a protected profile", user: req.user });
 });
 
-app.get('/', (req, res) => {
-    res.send(`Worker ${process.pid} responding!`);
-});
-
 // Load SSL certificate
 const sslOptions = {
     key: fs.readFileSync('./ssl/server.key'),
