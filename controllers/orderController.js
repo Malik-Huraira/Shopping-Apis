@@ -1,19 +1,20 @@
-const orderModel = require("../models/orderModel"); // Importing model
+const orderModel = require("../models/orderModel");
+const HTTP = require("../utils/httpStatusCodes");
 
 const createOrder = async (req, res) => {
     try {
         const { user_id, products } = req.body;
 
         if (!user_id || !products || products.length === 0) {
-            return res.status(400).json({ error: "User ID and products are required" });
+            return res.status(HTTP.BadRequest).json({ error: "User ID and products are required" });
         }
 
         const orderId = await orderModel.createOrder(user_id, products);
 
-        res.status(201).json({ message: "Order created successfully", order_id: orderId });
+        res.status(HTTP.Created).json({ message: "Order created successfully", order_id: orderId });
     } catch (error) {
         console.error("Create Order Error:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+        res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
@@ -22,13 +23,13 @@ const getOrderById = async (req, res) => {
         const orderData = await orderModel.getOrderById(req.params.id);
 
         if (!orderData) {
-            return res.status(404).json({ error: "Order not found" });
+            return res.status(HTTP.NotFound).json({ error: "Order not found" });
         }
 
-        res.status(200).json(orderData);
+        res.status(HTTP.OK).json(orderData);
     } catch (error) {
         console.error("Get Order By ID Error:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+        res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
@@ -37,18 +38,14 @@ const getUserOrders = async (req, res) => {
         let { page, limit } = req.query;
         const user_id = req.params.userId;
 
-        // Set default values if not provided
         page = parseInt(page) || 1;
         limit = parseInt(limit) || 10;
         const offset = (page - 1) * limit;
 
-        // Fetch paginated orders
         const orders = await orderModel.getPaginatedUserOrders(user_id, limit, offset);
-
-        // Fetch total orders count for the user
         const totalOrders = await orderModel.getTotalUserOrdersCount(user_id);
 
-        res.status(200).json({
+        res.status(HTTP.OK).json({
             orders,
             currentPage: page,
             totalPages: Math.ceil(totalOrders / limit),
@@ -58,7 +55,7 @@ const getUserOrders = async (req, res) => {
 
     } catch (error) {
         console.error("Get User Orders Error:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+        res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
@@ -70,13 +67,13 @@ const updateOrderStatus = async (req, res) => {
         const updatedRows = await orderModel.updateOrderStatus(id, status);
 
         if (updatedRows === 0) {
-            return res.status(404).json({ error: "Order not found" });
+            return res.status(HTTP.NotFound).json({ error: "Order not found" });
         }
 
-        res.status(200).json({ message: "Order status updated successfully" });
+        res.status(HTTP.OK).json({ message: "Order status updated successfully" });
     } catch (error) {
         console.error("Update Order Status Error:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+        res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
@@ -85,14 +82,20 @@ const deleteOrder = async (req, res) => {
         const deletedRows = await orderModel.deleteOrder(req.params.id);
 
         if (deletedRows === 0) {
-            return res.status(404).json({ error: "Order not found" });
+            return res.status(HTTP.NotFound).json({ error: "Order not found" });
         }
 
-        res.status(200).json({ message: "Order deleted successfully" });
+        res.status(HTTP.OK).json({ message: "Order deleted successfully" });
     } catch (error) {
         console.error("Delete Order Error:", error);
-        res.status(500).json({ error: "Internal Server Error", details: error.message });
+        res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
-module.exports = { createOrder, getOrderById, getUserOrders, updateOrderStatus, deleteOrder };
+module.exports = {
+    createOrder,
+    getOrderById,
+    getUserOrders,
+    updateOrderStatus,
+    deleteOrder
+};
