@@ -1,4 +1,4 @@
-const { sendEmail } = require('../models/emailModel');
+const { sendEmail } = require('../Model/emailModel');
 const { createEmailContent } = require('../view/emailview');
 const HTTP = require('../utils/httpStatusCodes');
 

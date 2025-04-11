@@ -1,34 +1,45 @@
+// emailModel.js - Updated with better error handling
 const nodemailer = require('nodemailer');
-require('dotenv').config();
-
 
 const sendEmail = async (to, subject, message) => {
-    // Setup transporter
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
+            user: 'malikhurara123@gmail.com',
+            pass: 'wwblpgltokemruay'
+        }
+    });
+    transporter.verify((err, success) => {
+        if (err) {
+            console.error("SMTP Connection FAILED:", err);
+        } else {
+            console.log("SMTP Connection READY");
         }
     });
 
-    // Mail options
     const mailOptions = {
-        from: `"Notifier" <${process.env.EMAIL_USER}>`,
+        from: `"My App" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         text: message,
+        html: `<p>${message}</p>` // Optional HTML version
     };
 
-    
     try {
-        await transporter.sendMail(mailOptions);
-        return { success: true, message: 'Email sent successfully!' };
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('Error sending email:', error);
-        return { success: false, error: 'Failed to send email' };
+        console.error('SMTP Error:', {
+            code: error.code,
+            response: error.response,
+            stack: error.stack
+        });
+        return {
+            success: false,
+            error: 'Failed to send email',
+            details: error.response
+        };
     }
-    
 };
-
-module.exports = { sendEmail };
+module.exports = { sendEmail }; 
