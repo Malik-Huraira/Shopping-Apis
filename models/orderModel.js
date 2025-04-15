@@ -1,12 +1,14 @@
-const db = require("../config/db");
-const queries = require("../config/queries");
+const db = require('../config/db');
+const queries = require('../config/queries');
 
+// Create an order
 const createOrder = async (user_id, products) => {
     let total_price = 0;
     const productPrices = {};
 
+    // Get the price of each product and calculate the total price
     for (let product of products) {
-        const [productData] = await db.query(queries.GET_PRODUCT_PRICE, [product.product_id]);
+        const [productData] = await db.query("CALL GetProductPrice(?)", [product.product_id]);
         if (productData.length === 0) throw new Error(`Product ID ${product.product_id} not found`);
 
         const productPrice = productData[0].price;
@@ -14,47 +16,58 @@ const createOrder = async (user_id, products) => {
         total_price += productPrice * product.quantity;
     }
 
-    const [orderResult] = await db.query(queries.INSERT_ORDER, [user_id, total_price]);
+    // Insert the order into the orders table
+    const [orderResult] = await db.query("CALL InsertOrder(?, ?)", [user_id, total_price]);
     const orderId = orderResult.insertId;
 
+    // Insert order items into the order_items table
     for (let product of products) {
-        await db.query(queries.INSERT_ORDER_ITEM, [orderId, product.product_id, product.quantity, productPrices[product.product_id]]);
+        await db.query("CALL InsertOrderItem(?, ?, ?, ?)", [
+            orderId, product.product_id, product.quantity, productPrices[product.product_id]
+        ]);
     }
 
     return orderId;
 };
 
+// Get order by ID
 const getOrderById = async (id) => {
-    const [order] = await db.query(queries.GET_ORDER_BY_ID, [id]);
+    const [order] = await db.query("CALL GetOrderById(?)", [id]);
     return order.length ? order : null;
 };
 
+// Get orders for a specific user
 const getUserOrders = async (user_id) => {
-    const [orders] = await db.query(queries.GET_USER_ORDERS, [user_id]);
+    const [orders] = await db.query("CALL GetUserOrders(?)", [user_id]);
     return orders;
 };
 
+// Update order status
 const updateOrderStatus = async (id, status) => {
     const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
     if (!status || !validStatuses.includes(status.toLowerCase())) {
         throw new Error(`Invalid status. Allowed values: ${validStatuses.join(", ")}`);
     }
 
-    const [result] = await db.query(queries.UPDATE_ORDER_STATUS, [status, id]);
+    const [result] = await db.query("CALL UpdateOrderStatus(?, ?)", [status, id]);
     return result.affectedRows;
 };
 
+// Delete an order
 const deleteOrder = async (id) => {
-    const [result] = await db.query(queries.DELETE_ORDER, [id]);
+    const [result] = await db.query("CALL DeleteOrder(?)", [id]);
     return result.affectedRows;
 };
+
+// Get paginated orders for a user
 const getPaginatedUserOrders = async (user_id, limit, offset) => {
-    const [orders] = await db.query(queries.GET_PAGINATED_USER_ORDERS, [user_id, limit, offset]);
+    const [orders] = await db.query("CALL GetPaginatedUserOrders(?, ?, ?)", [user_id, limit, offset]);
     return orders;
 };
 
+// Get total order count for a user
 const getTotalUserOrdersCount = async (user_id) => {
-    const [result] = await db.query(queries.GET_TOTAL_USER_ORDERS_COUNT, [user_id]);
+    const [result] = await db.query("CALL GetTotalUserOrdersCount(?)", [user_id]);
     return result[0].total;
 };
 

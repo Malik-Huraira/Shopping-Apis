@@ -14,25 +14,48 @@ const signupUser = async (req, res) => {
             return res.status(HTTP.BadRequest).json({ error: "Name, Email, Password, Role, and Phone Number are required" });
         }
 
-        const validRoles = ["admin", "user"];
-        if (!validRoles.includes(role)) {
+        // Ensure valid role and map to integer role ID
+        const validRoles = { admin: 1, user: 2 }; // map roles to integer IDs
+        const roleId = validRoles[role];
+        if (!roleId) {
             return res.status(HTTP.BadRequest).json({ error: "Invalid role. Allowed values: admin, user" });
         }
 
+        // Ensure valid status and map to integer status ID (if applicable)
+        const validStatuses = { active: 1, inactive: 2 }; // map statuses to integer IDs
+        const statusId = validStatuses[status];
+        if (!statusId) {
+            return res.status(HTTP.BadRequest).json({ error: "Invalid status. Allowed values: active, inactive" });
+        }
+
+        // Check if email exists
         const existingUser = await findUserByEmail(email);
         if (existingUser) {
             logActivity(email, "Signup", "FAILED (User already exists)");
             return res.status(HTTP.BadRequest).json({ error: "User with this email already exists" });
         }
 
+        // Check if phone number exists
         const existingPhone = await findUserByPhone(phone_number);
         if (existingPhone) {
             logActivity(email, "Signup", "FAILED (Phone number already exists)");
             return res.status(HTTP.BadRequest).json({ error: "User with this phone number already exists" });
         }
 
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 12);
-        const userId = await createUser({ name, email, password: hashedPassword, phone_number, status, role, address, description });
+
+        // Create user
+        const userId = await createUser({
+            name,
+            email,
+            password: hashedPassword,
+            phone_number,
+            status: statusId, // passing the integer status ID
+            role: roleId,     // passing the integer role ID
+            address,
+            description
+        });
 
         logActivity(email, "Signup", "SUCCESS");
         res.status(HTTP.Created).json({ message: "User registered successfully", userId });
@@ -42,18 +65,24 @@ const signupUser = async (req, res) => {
         res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: err.message });
     }
 };
-
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
+
         if (!email || !password) {
             return res.status(HTTP.BadRequest).json({ error: "Email and password are required" });
         }
 
         const user = await findUserByEmail(email);
+
         if (!user) {
             logActivity(email, "Login", "FAILED (Invalid credentials)");
             return res.status(HTTP.Unauthorized).json({ error: "Invalid email or password" });
+        }
+
+        if (!user.password) {
+            console.error("User password not found in DB.");
+            return res.status(HTTP.InternalServerError).json({ error: "Password not found for user" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -63,7 +92,7 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, role: user.role },
+            { id: user.id, role: user.role_name || user.role }, // Use role_name if available
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
@@ -72,9 +101,10 @@ const loginUser = async (req, res) => {
 
         logActivity(email, "Login", "SUCCESS");
         res.status(HTTP.OK).json({ message: "Login successful", token });
+
     } catch (err) {
         console.error("Login error:", err);
-        logActivity(req.body.email, "Login", "FAILED (Database error)");
+        logActivity(req.body.email, "Login", "FAILED (Server error)");
         res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: err.message });
     }
 };
