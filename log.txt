@@ -85,3 +85,8 @@
 [2025-04-15 13:51:53] User: newuser@example.com - Action: Login - Status: FAILED (Database error)
 [2025-04-15 15:09:39] User: newuser@example.com - Action: Login - Status: FAILED (Invalid password)
 [2025-04-15 15:09:52] User: newuser@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 12:09:44] User: ayesha@example.com - Action: Signup - Status: SUCCESS
+[2025-04-16 12:10:28] User: ayesha@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 12:54:01] User: ayesha@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 14:38:34] User: malikhurara123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-16 14:39:14] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS

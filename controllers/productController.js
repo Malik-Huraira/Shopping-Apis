@@ -1,16 +1,18 @@
 const productModel = require("../models/productModels");
 const HTTP = require("../utils/httpStatusCodes");
 
+// Create a new product
 const createProduct = async (req, res) => {
+    const { name, description, price, stock } = req.body;
+
+    if (!name || !description || price == null || stock == null) {
+        return res.status(HTTP.BadRequest).json({
+            error: "All fields (name, description, price, stock) are required"
+        });
+    }
+
     try {
-        const { name, description, price, stock } = req.body;
-
-        if (!name || !description || !price || !stock) {
-            return res.status(HTTP.BadRequest).json({ error: "All fields (name, description, price, stock) are required" });
-        }
-
         const productId = await productModel.createProduct({ name, description, price, stock });
-
         res.status(HTTP.Created).json({ message: "Product added successfully", id: productId });
     } catch (error) {
         console.error("Create Product Error:", error);
@@ -18,23 +20,26 @@ const createProduct = async (req, res) => {
     }
 };
 
+// Get all products (paginated)
 const getAllProducts = async (req, res) => {
+    let { page = 1, limit = 10 } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const offset = (page - 1) * limit;
+
     try {
-        let { page, limit } = req.query;
-
-        page = parseInt(page) || 1;
-        limit = parseInt(limit) || 10;
-        const offset = (page - 1) * limit;
-
-        const products = await productModel.getPaginatedProducts(limit, offset);
-        const totalProducts = await productModel.getTotalProductsCount();
+        const [products, totalProducts] = await Promise.all([
+            productModel.getPaginatedProducts(limit, offset),
+            productModel.getTotalProductsCount()
+        ]);
 
         res.status(HTTP.OK).json({
             products,
             currentPage: page,
             totalPages: Math.ceil(totalProducts / limit),
             totalProducts,
-            limit,
+            limit
         });
     } catch (error) {
         console.error("Get All Products Error:", error);
@@ -42,6 +47,7 @@ const getAllProducts = async (req, res) => {
     }
 };
 
+// Get product by ID
 const getProductById = async (req, res) => {
     try {
         const product = await productModel.getProductById(req.params.id);
@@ -57,15 +63,20 @@ const getProductById = async (req, res) => {
     }
 };
 
+// Update product
 const updateProduct = async (req, res) => {
+    const { name, description, price, stock } = req.body;
+
+    if (!name || !description || price == null || stock == null) {
+        return res.status(HTTP.BadRequest).json({
+            error: "All fields (name, description, price, stock) are required"
+        });
+    }
+
     try {
-        const { name, description, price, stock } = req.body;
-
-        if (!name || !description || !price || !stock) {
-            return res.status(HTTP.BadRequest).json({ error: "All fields (name, description, price, stock) are required" });
-        }
-
-        const updatedRows = await productModel.updateProduct(req.params.id, { name, description, price, stock });
+        const updatedRows = await productModel.updateProduct(req.params.id, {
+            name, description, price, stock
+        });
 
         if (updatedRows === 0) {
             return res.status(HTTP.NotFound).json({ message: "Product not found" });
@@ -78,6 +89,7 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// Delete product
 const deleteProduct = async (req, res) => {
     try {
         const deletedRows = await productModel.deleteProduct(req.params.id);

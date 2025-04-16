@@ -7,7 +7,7 @@ const authenticateUser = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        if (!authHeader || !authHeader.startsWith("Bearer")) {
             console.error("Authorization header is missing or malformed.");
             return res.status(HTTP.Unauthorized).json({ error: "Unauthorized - No Token Provided" });
         }
@@ -35,12 +35,12 @@ const authenticateUser = async (req, res, next) => {
         // Attach the decoded user data to the request object
         req.user = decoded;
 
-        // Check if the session exists in the database
-        const [session] = await db.query(queries.GET_SESSION, [token]);
+        // // Check if the session exists in the database
+        // const [session] = await db.query(queries.GET_SESSION, [token]);
 
-        if (!session || session.length === 0) {
-            return res.status(HTTP.Unauthorized).json({ error: "Invalid session or session expired" });
-        }
+        // if (!session || session.length === 0) {
+        //     return res.status(HTTP.Unauthorized).json({ error: "Invalid session or session expired" });
+        // }
 
         next();
     } catch (err) {

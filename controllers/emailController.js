@@ -5,22 +5,24 @@ const HTTP = require('../utils/httpStatusCodes');
 const sendNotification = async (req, res) => {
     const { to, subject, message } = req.body;
 
+    // Input validation
     if (!to || !subject || !message) {
-        return res.status(HTTP.BadRequest).json({ error: 'Missing required fields' });
+        return res.status(HTTP.BadRequest).json({ error: 'To, Subject, and Message are required.' });
     }
 
     try {
-        // Create the email content (View)
-        const emailContent = createEmailContent(subject, message);
+        // Generate email content from View layer
+        const content = createEmailContent(subject, message);
 
-        // Send the email (Model)
-        const emailResponse = await sendEmail(to, subject, emailContent);
+        // Send the email using Model logic
+        const { success, info, error } = await sendEmail(to, subject, content);
 
-        if (emailResponse.success) {
-            return res.status(HTTP.OK).json(emailResponse);
-        } else {
-            return res.status(HTTP.InternalServerError).json(emailResponse);
+        if (success) {
+            return res.status(HTTP.OK).json({ message: "Email sent successfully", info });
         }
+
+        // Structured error response
+        return res.status(HTTP.InternalServerError).json({ error: "Email sending failed", details: error });
     } catch (err) {
         console.error("Email sending error:", err);
         return res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: err.message });
