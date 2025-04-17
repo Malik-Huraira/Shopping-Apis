@@ -255,7 +255,10 @@ END;
 
 -- Update Order Status
 DROP PROCEDURE IF EXISTS UpdateOrderStatus;
-CREATE PROCEDURE UpdateOrderStatus(IN p_order_id INT, IN p_status_id INT) 
+CREATE PROCEDURE UpdateOrderStatus(
+    IN p_order_id INT,
+    IN p_status_id INT
+)
 BEGIN
     UPDATE orders
     SET status_id = p_status_id
@@ -269,3 +272,4 @@ BEGIN
     DELETE FROM orders WHERE id = p_order_id;
 END;
 SHOW PROCEDURE STATUS WHERE Db = 'edata';
+DESCRIBE orders;

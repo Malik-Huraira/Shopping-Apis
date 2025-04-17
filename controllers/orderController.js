@@ -1,5 +1,6 @@
 const orderModel = require("../models/orderModel");
 const HTTP = require("../utils/httpStatusCodes");
+const { getCache, setCache, clearOrderCache } = require("../utils/cacheUtils");
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -11,6 +12,7 @@ const createOrder = async (req, res) => {
 
     try {
         const orderId = await orderModel.createOrder(user_id, products);
+        clearOrderCache(user_id);
         res.status(HTTP.Created).json({ message: "Order created successfully", order_id: orderId });
     } catch (error) {
         console.error("Create Order Error:", error);
@@ -20,47 +22,66 @@ const createOrder = async (req, res) => {
 
 // Get order by ID
 const getOrderById = async (req, res) => {
+    const id = req.params.id;
+    const cacheKey = `order:${id}`;
+
     try {
-        const order = await orderModel.getOrderById(req.params.id);
+        getCache(cacheKey, async (err, cachedData) => {
+            if (err) throw err;
+            if (cachedData) return res.status(HTTP.OK).json(cachedData);
 
-        if (!order) {
-            return res.status(HTTP.NotFound).json({ error: "Order not found" });
-        }
+            const order = await orderModel.getOrderById(id);
+            if (!order) {
+                return res.status(HTTP.NotFound).json({ error: "Order not found" });
+            }
 
-        res.status(HTTP.OK).json(order);
+            setCache(cacheKey, order);
+            res.status(HTTP.OK).json(order);
+        });
     } catch (error) {
         console.error("Get Order By ID Error:", error);
         res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
 
+
 // Get paginated orders for a user
 const getUserOrders = async (req, res) => {
     const user_id = req.params.userId;
     let { page = 1, limit = 10 } = req.query;
-
     page = parseInt(page);
     limit = parseInt(limit);
     const offset = (page - 1) * limit;
 
-    try {
-        const [orders, totalOrders] = await Promise.all([
-            orderModel.getPaginatedUserOrders(user_id, limit, offset),
-            orderModel.getTotalUserOrdersCount(user_id)
-        ]);
+    const cacheKey = `order:user:${user_id}:page:${page}:limit:${limit}`;
 
-        res.status(HTTP.OK).json({
-            orders,
-            currentPage: page,
-            totalPages: Math.ceil(totalOrders / limit),
-            totalOrders,
-            limit
+    try {
+        getCache(cacheKey, async (err, cachedData) => {
+            if (err) throw err;
+            if (cachedData) return res.status(HTTP.OK).json(cachedData);
+
+            const [orders, totalOrders] = await Promise.all([
+                orderModel.getPaginatedUserOrders(user_id, limit, offset),
+                orderModel.getTotalUserOrdersCount(user_id)
+            ]);
+
+            const response = {
+                orders,
+                currentPage: page,
+                totalPages: Math.ceil(totalOrders / limit),
+                totalOrders,
+                limit
+            };
+
+            setCache(cacheKey, response);
+            res.status(HTTP.OK).json(response);
         });
     } catch (error) {
         console.error("Get User Orders Error:", error);
         res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
+
 
 // Update order status
 const updateOrderStatus = async (req, res) => {
@@ -78,12 +99,14 @@ const updateOrderStatus = async (req, res) => {
             return res.status(HTTP.NotFound).json({ error: "Order not found" });
         }
 
+        clearOrderCache(null, id); 
         res.status(HTTP.OK).json({ message: "Order status updated successfully" });
     } catch (error) {
         console.error("Update Order Status Error:", error);
         res.status(HTTP.InternalServerError).json({ error: "Internal Server Error", details: error.message });
     }
 };
+
 
 // Delete an order
 const deleteOrder = async (req, res) => {
@@ -94,6 +117,7 @@ const deleteOrder = async (req, res) => {
             return res.status(HTTP.NotFound).json({ error: "Order not found" });
         }
 
+        clearOrderCache(null, req.params.id);
         res.status(HTTP.OK).json({ message: "Order deleted successfully" });
     } catch (error) {
         console.error("Delete Order Error:", error);

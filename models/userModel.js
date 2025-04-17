@@ -39,9 +39,19 @@ const getUserById = async (id) => {
 
 // Update an existing user
 const updateUser = async (id, userData) => {
-    const [result] = await db.query("CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)", [
-        ...extractUserFields(userData), id
-    ]);
+    const [result] = await db.query(
+        "CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            id,
+            userData.name,
+            userData.email,
+            userData.phone_number,
+            userData.role,
+            userData.status,
+            userData.address,
+            userData.description
+        ]
+    );
     return result.affectedRows;
 };
 

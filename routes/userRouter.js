@@ -5,10 +5,12 @@ const authenticateUser = require('../middleware/authmiddleware'); // Ensure this
 
 const router = express.Router();
 
-router.get('/',authenticateUser, authorizeRoles('Admin'), getAllUsers);
+router.use(authenticateUser);
+
+router.get('/', authorizeRoles('Admin'), getAllUsers);
 router.get('/:id', authorizeRoles('Admin', 'User'), getUserById);
-router.put('/:id', authenticateUser, authorizeRoles('Admin'), updateUser);
-router.delete('/:id', authenticateUser, authorizeRoles('Admin'), deleteUser);
+router.put('/:id',  authorizeRoles('Admin'), updateUser);
+router.delete('/:id', authorizeRoles('Admin'), deleteUser);
 
 
 module.exports = router;

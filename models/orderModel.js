@@ -2,33 +2,49 @@ const db = require('../config/db');
 const queries = require('../config/queries');
 
 // Create an order
+// Create an order
 const createOrder = async (user_id, products) => {
     let total_price = 0;
     const productPrices = {};
 
-    // Get the price of each product and calculate the total price
+    // ✅ Check if user exists
+    const [userRows] = await db.query("SELECT id FROM users WHERE id = ?", [user_id]);
+    if (!userRows.length) {
+        throw new Error(`User ID ${user_id} does not exist`);
+    }
+
+    // 🧮 Get price for each product and calculate total
     for (let product of products) {
         const [productData] = await db.query("CALL GetProductPrice(?)", [product.product_id]);
-        if (productData.length === 0) throw new Error(`Product ID ${product.product_id} not found`);
 
-        const productPrice = productData[0].price;
+        if (!productData || !productData[0] || !productData[0][0]) {
+            throw new Error(`Product ID ${product.product_id} not found`);
+        }
+
+        const productPrice = productData[0][0].price;
         productPrices[product.product_id] = productPrice;
         total_price += productPrice * product.quantity;
     }
 
-    // Insert the order into the orders table
+    // 📝 Insert the order
     const [orderResult] = await db.query("CALL InsertOrder(?, ?)", [user_id, total_price]);
-    const orderId = orderResult.insertId;
 
-    // Insert order items into the order_items table
+    // 🆔 Extract inserted order ID
+    const orderId = orderResult[0][0]?.inserted_id || orderResult.insertId;
+
+    // 📦 Insert each product in the order_items table
     for (let product of products) {
         await db.query("CALL InsertOrderItem(?, ?, ?, ?)", [
-            orderId, product.product_id, product.quantity, productPrices[product.product_id]
+            orderId,
+            product.product_id,
+            product.quantity,
+            productPrices[product.product_id]
         ]);
     }
 
     return orderId;
 };
+
 
 // Get order by ID
 const getOrderById = async (id) => {
@@ -43,13 +59,20 @@ const getUserOrders = async (user_id) => {
 };
 
 // Update order status
+const statusMap = {
+    pending: 1,
+    shipped: 2,
+    delivered: 3,
+    cancelled: 4,
+};
+
 const updateOrderStatus = async (id, status) => {
-    const validStatuses = ["pending", "shipped", "delivered", "cancelled"];
-    if (!status || !validStatuses.includes(status.toLowerCase())) {
-        throw new Error(`Invalid status. Allowed values: ${validStatuses.join(", ")}`);
+    const statusId = statusMap[status.toLowerCase()];
+    if (!statusId) {
+        throw new Error("Invalid status");
     }
 
-    const [result] = await db.query("CALL UpdateOrderStatus(?, ?)", [status, id]);
+    const [result] = await db.query("CALL UpdateOrderStatus(?, ?)", [id, statusId]);
     return result.affectedRows;
 };
 
