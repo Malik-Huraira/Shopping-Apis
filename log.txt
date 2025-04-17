@@ -67,3 +67,32 @@
 [2025-04-07 12:25:48] User: john1234@example.com - Action: Login - Status: SUCCESS
 [2025-04-07 12:25:49] User: john1234@example.com - Action: Login - Status: SUCCESS
 [2025-04-07 12:25:50] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-04-15 12:53:11] User: aymen@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:53:32] User: qwerty123.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:53:51] User: qwerty123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:53:52] User: qwerty123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:55:00] User: com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:56:54] User: newuser123@example.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-15 12:59:19] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:03:22] User: newuser123@example.com - Action: Signup - Status: FAILED (Phone number already exists)
+[2025-04-15 13:05:49] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:07:20] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:08:06] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:09:57] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:11:50] User: newuser123@example.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-15 13:50:48] User: newuser@example.com - Action: Signup - Status: FAILED (Phone number already exists)
+[2025-04-15 13:50:56] User: newuser@example.com - Action: Signup - Status: SUCCESS
+[2025-04-15 13:51:53] User: newuser@example.com - Action: Login - Status: FAILED (Database error)
+[2025-04-15 15:09:39] User: newuser@example.com - Action: Login - Status: FAILED (Invalid password)
+[2025-04-15 15:09:52] User: newuser@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 12:09:44] User: ayesha@example.com - Action: Signup - Status: SUCCESS
+[2025-04-16 12:10:28] User: ayesha@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 12:54:01] User: ayesha@example.com - Action: Login - Status: SUCCESS
+[2025-04-16 14:38:34] User: malikhurara123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-16 14:39:14] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 12:24:41] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 14:04:58] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 15:06:16] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 16:02:47] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 16:38:55] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-17 17:17:28] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS

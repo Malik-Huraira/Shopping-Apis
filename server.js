@@ -14,6 +14,7 @@ const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
 const emailRouter = require('./routes/emailRouter');
 
+
 const app = express();
 
 // Middleware
@@ -43,7 +44,7 @@ app.use('/api/products', productRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/email', emailRouter);
 
-
+app.get('/test', (req, res) => res.send('Hello!'));
 // Global authentication middleware (after public routes)
 app.use(authenticateUser);
 
