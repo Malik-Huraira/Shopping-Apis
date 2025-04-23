@@ -1,31 +1,45 @@
 const userModel = require('../model/userModel');
 const bcrypt = require('bcryptjs');
 const HTTP = require('../utils/httpStatusCodes');
+const mapRoleAndStatus = require("../utils/mapRoleAndStatus");
 
-// Create a new user
 const createUser = async (req, res) => {
     const { name, email, password, phone_number, status, role, address, description } = req.body;
 
-    if (!name || !email || !password || !phone_number || !status || !role) {
+    if (!name || !email || !password || !role || !phone_number) {
         return res.status(HTTP.BadRequest).json({
-            error: "Missing required fields (Name, Email, Password, Phone, Status, Role)"
+            error: "Name, Email, Password, Role, and Phone Number are required",
+        });
+    }
+
+    const { roleId, statusId } = await mapRoleAndStatus(role, status);
+
+    if (!roleId || !statusId) {
+        return res.status(HTTP.BadRequest).json({
+            error: "Invalid role or status. Allowed roles: admin, user | statuses: active, inactive",
         });
     }
 
     try {
-        const existingUser = await userModel.findUserByEmail(email);
-        if (existingUser) {
-            return res.status(HTTP.BadRequest).json({ error: "User with this email already exists" });
+        const [existingUser, existingPhone] = await Promise.all([
+            userModel.findUserByEmail(email),
+            userModel.findUserByPhone(phone_number),
+        ]);
+
+        if (existingUser || existingPhone) {
+            const reason = existingUser ? "User with this email already exists" : "Phone number already exists";
+            return res.status(HTTP.BadRequest).json({ error: reason });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
+
         const userId = await userModel.createUser({
             name,
             email,
             password: hashedPassword,
             phone_number,
-            status,
-            role,
+            status: statusId,
+            role: roleId,
             address,
             description
         });
@@ -36,6 +50,7 @@ const createUser = async (req, res) => {
         res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
     }
 };
+
 
 // Get paginated list of users
 const getAllUsers = async (req, res) => {

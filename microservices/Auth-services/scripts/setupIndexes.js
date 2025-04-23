@@ -1,5 +1,5 @@
 // Example using MySQL connection
-const db = require('../shared/config/db');
+const db = require('../config/db');
 
 const queries = [
     // Users

@@ -7,12 +7,6 @@ const createOrder = async (user_id, products) => {
     let total_price = 0;
     const productPrices = {};
 
-    // ✅ Check if user exists
-    const [userRows] = await db.query("SELECT id FROM users WHERE id = ?", [user_id]);
-    if (!userRows.length) {
-        throw new Error(`User ID ${user_id} does not exist`);
-    }
-
     // 🧮 Get price for each product and calculate total
     for (let product of products) {
         const [productData] = await db.query("CALL GetProductPrice(?)", [product.product_id]);

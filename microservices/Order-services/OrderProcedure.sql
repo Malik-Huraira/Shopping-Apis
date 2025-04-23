@@ -1,4 +1,4 @@
--- ===================== ORDERS PROCEDURES =====================
+--===================== ORDERS PROCEDURES =====================
 
 -- Get Product Price
 DROP PROCEDURE IF EXISTS GetProductPrice;
@@ -75,5 +75,4 @@ CREATE PROCEDURE DeleteOrder(IN p_order_id INT)
 BEGIN
     DELETE FROM orders WHERE id = p_order_id;
 END;
-SHOW PROCEDURE STATUS WHERE Db = 'edata';
-DESCRIBE orders;
+

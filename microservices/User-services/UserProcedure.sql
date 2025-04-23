@@ -107,3 +107,20 @@ BEGIN
     LIMIT offsetVal, pageSize;
 END;
 
+USE users;
+
+DROP PROCEDURE IF EXISTS GetUserByPhone;
+CREATE PROCEDURE GetUserByPhone(IN userPhone VARCHAR(20)) 
+BEGIN
+    SELECT u.id,
+           u.name,
+           u.email,
+           r.role_name,
+           u.password,
+           s.status_name
+    FROM users u
+    JOIN roles r ON u.role_id = r.id
+    JOIN statuses s ON u.status_id = s.id
+    WHERE u.phone_number = userPhone;
+END;
+

@@ -7,10 +7,7 @@ const queries = {
     UPDATE_USER: "CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)",
     DELETE_USER: "CALL DeleteUser(?)",
     GET_TOTAL_USERS_COUNT: "CALL GetTotalUsersCount()",
-    GET_PAGINATED_USERS: "CALL GetPaginatedUsers(?, ?)",
-    // Sessions Queries
-    INSERT_SESSION: "CALL InsertSession(?, ?)",
-    DELETE_SESSION: "CALL DeleteSession(?)",
+    GET_PAGINATED_USERS: "CALL GetPaginatedUsers(?, ?)"
 
 
 

@@ -111,3 +111,18 @@
 [2025-04-22 12:46:49] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-22 12:46:52] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-22 12:49:13] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-22 17:43:02] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-22 17:44:44] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-22 17:44:45] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-22 17:46:51] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-23 10:06:19] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-23 10:20:31] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-23 10:22:28] User: AnusAwan123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-23 10:23:12] User: AnusAwan123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-23 10:29:44] User: AnusAwan123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-23 10:30:37] User: AnusAwan123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-04-23 10:33:17] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-23 10:46:36] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-23 12:04:09] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-23 13:07:33] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-23 14:08:15] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS

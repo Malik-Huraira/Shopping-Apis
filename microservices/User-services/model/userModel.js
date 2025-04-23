@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const queries = require('../config/queries');
-
+const mapRoleAndStatus = require('../utils/mapRoleAndStatus');
 // Extract user fields for insertion and update
 const extractUserFields = (userData) => {
     return [
@@ -39,6 +39,13 @@ const getUserById = async (id) => {
 
 // Update an existing user
 const updateUser = async (id, userData) => {
+    const { role, status } = userData;
+    const { roleId, statusId } = await mapRoleAndStatus(role, status);
+
+    if (!roleId || !statusId) {
+        throw new Error("Invalid role or status");
+    }
+
     const [result] = await db.query(
         "CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)",
         [
@@ -46,12 +53,13 @@ const updateUser = async (id, userData) => {
             userData.name,
             userData.email,
             userData.phone_number,
-            userData.role,
-            userData.status,
+            roleId,           
+            statusId,         
             userData.address,
             userData.description
         ]
     );
+
     return result.affectedRows;
 };
 

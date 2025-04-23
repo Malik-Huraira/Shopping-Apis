@@ -25,41 +25,6 @@ const createUser = async (userData) => {
     return result.insertId;
 };
 
-// Get all users
-const getAllUsers = async () => {
-    const [users] = await db.query("CALL GetAllUsers()");
-    return users;
-};
-
-// Get user by ID
-const getUserById = async (id) => {
-    const [user] = await db.query("CALL GetUserById(?)", [id]);
-    return user.length ? user[0] : null;
-};
-
-// Update an existing user
-const updateUser = async (id, userData) => {
-    const [result] = await db.query(
-        "CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-            id,
-            userData.name,
-            userData.email,
-            userData.phone_number,
-            userData.role,
-            userData.status,
-            userData.address,
-            userData.description
-        ]
-    );
-    return result.affectedRows;
-};
-
-// Delete a user
-const deleteUser = async (id) => {
-    const [result] = await db.query("CALL DeleteUser(?)", [id]);
-    return result.affectedRows;
-};
 
 // Find a user by email
 const findUserByEmail = async (email) => {
@@ -83,28 +48,12 @@ const deleteUserSession = async (token) => {
     await db.query("CALL DeleteSession(?)", [token]);
 };
 
-// Get paginated users
-const getPaginatedUsers = async (limit, offset) => {
-    const [users] = await db.query("CALL GetPaginatedUsers(?, ?)", [limit, offset]);
-    return users;
-};
-
-// Get total count of users
-const getTotalUsersCount = async () => {
-    const [result] = await db.query("CALL GetTotalUsersCount()");
-    return result[0].total;
-};
 
 module.exports = {
     createUser,
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser,
     findUserByEmail,
     findUserByPhone,
     saveUserSession,
     deleteUserSession,
-    getPaginatedUsers,
-    getTotalUsersCount
+
 };

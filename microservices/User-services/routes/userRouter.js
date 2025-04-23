@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllUsers, getUserById, updateUser, deleteUser } = require('../controller/userController');
+const { getAllUsers, getUserById, updateUser, deleteUser,createUser } = require('../controller/userController');
 const authorizeRoles = require('../middleware/authorizeRole');
 const authenticateUser = require('../middleware/authmiddleware'); // Ensure this is the correct path to your middleware
 
@@ -11,6 +11,6 @@ router.get('/', authorizeRoles('Admin'), getAllUsers);
 router.get('/:id', authorizeRoles('Admin', 'User'), getUserById);
 router.put('/:id', authorizeRoles('Admin'), updateUser);
 router.delete('/:id', authorizeRoles('Admin'), deleteUser);
-
+router.post('/', authorizeRoles('Admin'),createUser);
 
 module.exports = router;
