@@ -126,3 +126,18 @@
 [2025-04-23 12:04:09] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-23 13:07:33] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-23 14:08:15] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 09:58:37] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-28 09:59:56] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 10:11:59] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 10:22:49] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-04-28 10:22:56] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-04-28 10:23:51] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 12:56:39] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-28 12:57:42] User: malikhurara123@gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-04-28 12:57:55] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 12:58:33] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 13:04:44] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 13:09:17] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 13:10:24] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-28 13:12:26] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-28 13:12:26] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)

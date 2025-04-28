@@ -2,7 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
 const queries = require("../config/queries");
-const { findUserByEmail, findUserByPhone, createUser } = require("../model/AuthModel");
+const { findUserByEmail, findUserByPhone, createUser } = require("../model/userModel");
 const logActivity = require("../utils/logger");
 const HTTP = require("../utils/httpStatusCodes");
 
