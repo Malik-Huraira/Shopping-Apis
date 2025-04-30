@@ -1,6 +1,4 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
-const queries = require('../config/queries');
 const HTTP = require('../utils/httpStatusCodes'); // your centralized HTTP codes
 
 const authenticateUser = async (req, res, next) => {

@@ -1,6 +1,4 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/db');
-const queries = require('../config/queries');
 const HTTP = require('../utils/httpStatusCodes'); // your centralized HTTP codes
 
 const authenticateUser = async (req, res, next) => {
@@ -14,6 +12,7 @@ const authenticateUser = async (req, res, next) => {
 
         // Extract the token from the Authorization header
         const token = authHeader.split(' ')[1];
+        req.headers.authorization = token; // Store the token in headers for later use
         console.log("Extracted Token:", token);
 
         // Check if token is undefined or empty
@@ -34,13 +33,6 @@ const authenticateUser = async (req, res, next) => {
 
         // Attach the decoded user data to the request object
         req.user = decoded;
-
-        // // Check if the session exists in the database
-        // const [session] = await db.query(queries.GET_SESSION, [token]);
-
-        // if (!session || session.length === 0) {
-        //     return res.status(HTTP.Unauthorized).json({ error: "Invalid session or session expired" });
-        // }
 
         next();
     } catch (err) {

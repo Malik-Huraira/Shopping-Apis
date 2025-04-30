@@ -1,20 +1,24 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const db = require("../config/db");
-const queries = require("../config/queries");
-const { findUserByEmail, findUserByPhone, createUser } = require("../model/userModel");
+
+const {
+    findUserByEmail,
+    findUserByPhone,
+    createUser,
+    saveUserSession,
+    deleteUserSession,
+} = require("../model/userModel");
+
 const logActivity = require("../utils/logger");
 const HTTP = require("../utils/httpStatusCodes");
 
 const validRoles = { admin: 1, user: 2 };
 const validStatuses = { active: 1, inactive: 2 };
 
-const mapRoleAndStatus = (role, status) => {
-    return {
-        roleId: validRoles[role],
-        statusId: validStatuses[status],
-    };
-};
+const mapRoleAndStatus = (role, status) => ({
+    roleId: validRoles[role],
+    statusId: validStatuses[status],
+});
 
 const signupUser = async (req, res) => {
     const { name, email, password, phone_number, status, role, address, description } = req.body;
@@ -27,6 +31,7 @@ const signupUser = async (req, res) => {
 
     const { roleId, statusId } = mapRoleAndStatus(role, status);
 
+    console.log("Mapped Role and Status:", { roleId, statusId });
     if (!roleId || !statusId) {
         return res.status(HTTP.BadRequest).json({
             error: "Invalid role or status. Allowed roles: admin, user | statuses: active, inactive",
@@ -47,19 +52,19 @@ const signupUser = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        const userId = await createUser({
+        const user = await createUser({
             name,
             email,
             password: hashedPassword,
             phone_number,
-            status: statusId,
-            role: roleId,
+            status_id: statusId,
+            role_id: roleId,
             address,
             description,
         });
 
         logActivity(email, "Signup", "SUCCESS");
-        res.status(HTTP.Created).json({ message: "User registered successfully", userId });
+        res.status(HTTP.Created).json({ message: "User registered successfully", user });
     } catch (err) {
         console.error("Signup error:", err);
         logActivity(email, "Signup", "FAILED (Database error)");
@@ -89,12 +94,12 @@ const loginUser = async (req, res) => {
         }
 
         const token = jwt.sign(
-            { id: user.id, role: user.role_name || user.role },
+            { id: user.id, role: user.role_id },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
-        await db.query(queries.INSERT_SESSION, [user.id, token]);
+        await saveUserSession(user.id, token);
 
         logActivity(email, "Login", "SUCCESS");
         res.status(HTTP.OK).json({ message: "Login successful", token });
@@ -114,7 +119,7 @@ const logoutUser = async (req, res) => {
     }
 
     try {
-        await db.query(queries.DELETE_SESSION, [token]);
+        await deleteUserSession(token);
         logActivity("Unknown", "Logout", "SUCCESS");
         res.status(HTTP.OK).json({ message: "Logged out successfully" });
     } catch (err) {

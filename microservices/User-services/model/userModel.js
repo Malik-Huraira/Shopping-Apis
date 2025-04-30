@@ -1,118 +1,56 @@
-const db = require('../config/db');
-const queries = require('../config/queries');
-const mapRoleAndStatus = require('../utils/mapRoleAndStatus');
-// Extract user fields for insertion and update
-const extractUserFields = (userData) => {
-    return [
-        userData.name,
-        userData.email,
-        userData.phone_number,
-        userData.status,
-        userData.role,
-        userData.address,
-        userData.description,
-        userData.password
-    ];
-};
+const User = require('./User');
+const { Op } = require('sequelize');
 
-// Create a new user
+// Create User
 const createUser = async (userData) => {
-    const [result] = await db.query("CALL InsertUser(?, ?, ?, ?, ?, ?, ?, ?)", [
-        userData.name, userData.email, userData.password,
-        userData.phone_number, userData.status, userData.role,
-        userData.address, userData.description
-    ]);
-    return result.insertId;
+    const user = await User.create(userData);
+    return user.id;
 };
 
-// Get all users
-const getAllUsers = async () => {
-    const [users] = await db.query("CALL GetAllUsers()");
-    return users;
-};
-
-// Get user by ID
-const getUserById = async (id) => {
-    const [user] = await db.query("CALL GetUserById(?)", [id]);
-    return user.length ? user[0] : null;
-};
-
-// Update an existing user
-const updateUser = async (id, userData) => {
-    const { role, status } = userData;
-    const { roleId, statusId } = await mapRoleAndStatus(role, status);
-
-    if (!roleId || !statusId) {
-        throw new Error("Invalid role or status");
-    }
-
-    const [result] = await db.query(
-        "CALL UpdateUser(?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-            id,
-            userData.name,
-            userData.email,
-            userData.phone_number,
-            roleId,           
-            statusId,         
-            userData.address,
-            userData.description
-        ]
-    );
-
-    return result.affectedRows;
-};
-
-// Delete a user
-const deleteUser = async (id) => {
-    const [result] = await db.query("CALL DeleteUser(?)", [id]);
-    return result.affectedRows;
-};
-
-// Find a user by email
+// Find User By Email
 const findUserByEmail = async (email) => {
-    const [user] = await db.query("CALL GetUserByEmail(?)", [email]);
-    return user[0]?.length ? user[0][0] : null;
+    return await User.findOne({ where: { email } });
 };
 
-// Find a user by phone number
+// Find User By Phone
 const findUserByPhone = async (phone_number) => {
-    const [user] = await db.query("CALL GetUserByPhone(?)", [phone_number]);
-    return user[0]?.length ? user[0][0] : null;
+    return await User.findOne({ where: { phone_number } });
 };
 
-// Save a user's session
-const saveUserSession = async (userId, token) => {
-    await db.query("CALL InsertSession(?, ?)", [userId, token]);
+// Get User By ID
+const getUserById = async (id) => {
+    return await User.findByPk(id);
 };
 
-// Delete a user's session
-const deleteUserSession = async (token) => {
-    await db.query("CALL DeleteSession(?)", [token]);
+// Update User
+const updateUser = async (id, userData) => {
+    const [affectedRows] = await User.update(userData, { where: { id } });
+    return affectedRows;
 };
 
-// Get paginated users
+// Delete User
+const deleteUser = async (id) => {
+    const affectedRows = await User.destroy({ where: { id } });
+    return affectedRows;
+};
+
+// Paginated Users
 const getPaginatedUsers = async (limit, offset) => {
-    const [users] = await db.query("CALL GetPaginatedUsers(?, ?)", [limit, offset]);
-    return users;
+    return await User.findAll({ limit, offset });
 };
 
-// Get total count of users
+// Total Users Count
 const getTotalUsersCount = async () => {
-    const [result] = await db.query("CALL GetTotalUsersCount()");
-    return result[0].total;
+    return await User.count();
 };
 
 module.exports = {
     createUser,
-    getAllUsers,
+    findUserByEmail,
+    findUserByPhone,
     getUserById,
     updateUser,
     deleteUser,
-    findUserByEmail,
-    findUserByPhone,
-    saveUserSession,
-    deleteUserSession,
     getPaginatedUsers,
     getTotalUsersCount
 };

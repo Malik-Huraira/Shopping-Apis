@@ -2,12 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-require('dotenv').config();
-
+const sequelize = require('./config/sequelize');
 const userRouter = require('./routes/userRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
-
+require('dotenv').config();
 
 const app = express();
 
@@ -17,6 +16,13 @@ app.use(express.json());
 app.use(helmet());
 app.use(bodyParser.json());
 
+sequelize.sync({ force: false })
+    .then(() => {
+        console.log('Database & tables created!');
+    })
+    .catch((error) => {
+        console.error('Error creating database & tables:', error);
+    });
 // Rate limiter middleware
 app.use('/api', createRateLimiter({
     windowMs: 1 * 60 * 1000,

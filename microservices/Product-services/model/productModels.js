@@ -1,46 +1,69 @@
-const db = require('../config/db');
-const queries = require('../config/queries');
+const Product = require('./product');
 
 // Get all products
 const getAllProducts = async () => {
-    const [products] = await db.query("CALL GetAllProducts()");
-    return products;
+    return await Product.findAll();
 };
 
 // Get a product by ID
 const getProductById = async (id) => {
-    const [product] = await db.query("CALL GetProductById(?)", [id]);
-    return product.length ? product[0] : null;
+    return await Product.findByPk(id);
 };
 
 // Create a new product
 const createProduct = async ({ name, description, price, stock }) => {
-    const [result] = await db.query("CALL InsertProduct(?, ?, ?, ?)", [name, description, price, stock]);
-    return result.insertId;
+    const product = await Product.create({ name, description, price, stock });
+    return product.id;
 };
 
 // Update an existing product
 const updateProduct = async (id, { name, description, price, stock }) => {
-    const [result] = await db.query("CALL UpdateProduct(?, ?, ?, ?, ?)", [id, name, description, price, stock]);
-    return result.affectedRows;
+    const product = await Product.findByPk(id);
+    if (!product) {
+        return null; // or throw new Error('Product not found');
+    }
+
+    await product.update({ name, description, price, stock });
+    return product;
 };
 
 // Delete a product
 const deleteProduct = async (id) => {
-    const [result] = await db.query("CALL DeleteProduct(?)", [id]);
-    return result.affectedRows;
+    const product = await Product.findByPk(id);
+    if (!product) {
+        return 0;
+    }
+
+    await product.destroy();
+    return 1;
 };
 
 // Get paginated products
 const getPaginatedProducts = async (limit, offset) => {
-    const [products] = await db.query("CALL GetPaginatedProducts(?, ?)", [limit, offset]);
-    return products;
+    try {
+        const products = await Product.findAll({
+            limit,
+            offset,
+        });
+        return products;
+    } catch (error) {
+        console.error("Error fetching paginated products:", error);
+        throw error; // Propagate the error to be handled in the controller
+    }
 };
-
 // Get the total count of products
 const getTotalProductsCount = async () => {
-    const [result] = await db.query("CALL GetTotalProductsCount()");
-    return result[0].total;
+    return await Product.count();
+};
+
+const bulkFetchProducts = async (ids) => {
+    try {
+        return await Product.findAll({
+            where: { id: ids }
+        });
+    } catch (error) {
+        throw new Error("Error fetching products in bulk: " + error.message);
+    }
 };
 
 module.exports = {
@@ -50,5 +73,6 @@ module.exports = {
     updateProduct,
     deleteProduct,
     getPaginatedProducts,
-    getTotalProductsCount
+    getTotalProductsCount,
+    bulkFetchProducts
 };

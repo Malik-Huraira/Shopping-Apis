@@ -7,10 +7,10 @@ const router = express.Router();
 
 router.use(authenticateUser);
 
-router.get('/', authorizeRoles('Admin'), getAllUsers);
-router.get('/:id', authorizeRoles('Admin', 'User'), getUserById);
-router.put('/:id', authorizeRoles('Admin'), updateUser);
-router.delete('/:id', authorizeRoles('Admin'), deleteUser);
-router.post('/', authorizeRoles('Admin'),createUser);
+router.get('/', authorizeRoles(1), getAllUsers);
+router.get('/:id', authorizeRoles(1,2), getUserById);
+router.put('/:id', authorizeRoles(1), updateUser);
+router.delete('/:id', authorizeRoles(1), deleteUser);
+router.post('/', authorizeRoles(1),createUser);
 
 module.exports = router;

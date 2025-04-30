@@ -141,3 +141,26 @@
 [2025-04-28 13:10:24] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-28 13:12:26] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
 [2025-04-28 13:12:26] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-28 15:32:24] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 11:23:48] User: basitmalik123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-29 11:24:22] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 14:47:09] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 14:51:19] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 15:32:56] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 16:36:45] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 17:24:05] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-04-29 17:24:40] User: salar123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-29 17:30:32] User: admin@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-29 17:33:14] User: admin@1gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-04-29 17:34:04] User: admin@1gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-29 17:34:57] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 17:38:39] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-29 17:45:51] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 09:55:44] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 09:57:06] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 11:23:10] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 12:23:27] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 14:16:49] User: admin@1gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 14:36:22] User: Admin123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-04-30 14:36:51] User: Admin123@gmail.com - Action: Login - Status: SUCCESS
+[2025-04-30 14:49:23] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)

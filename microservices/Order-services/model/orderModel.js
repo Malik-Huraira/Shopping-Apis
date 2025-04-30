@@ -1,91 +1,99 @@
-const db = require('../config/db');
-const queries = require('../config/queries');
+const Order = require('./Order');
+const OrderItem = require('./OrderItem');
+const sequelize = require('../config/sequelize');
 
-// Create an order
-// Create an order
-const createOrder = async (user_id, products) => {
-    let total_price = 0;
-    const productPrices = {};
+const createOrder = async (user_id, total_price, order_items) => {
+    return await sequelize.transaction(async (t) => {
 
-    // 🧮 Get price for each product and calculate total
-    for (let product of products) {
-        const [productData] = await db.query("CALL GetProductPrice(?)", [product.product_id]);
+        console.log("Creating order for user:", user_id, "with total price:", total_price);
+        const newOrder = await Order.create({
+            user_id: parseInt(user_id),
+            total_price: parseFloat(total_price),
+            status: "pending" // default to "pending"
+        }, { transaction: t });
 
-        if (!productData || !productData[0] || !productData[0][0]) {
-            throw new Error(`Product ID ${product.product_id} not found`);
+        for (let product of order_items) {
+            await OrderItem.create({
+                order_id: newOrder.id,
+                product_id: product.product_id,
+                quantity: product.quantity,
+                price: product.price
+            }, { transaction: t });
         }
 
-        const productPrice = productData[0][0].price;
-        productPrices[product.product_id] = productPrice;
-        total_price += productPrice * product.quantity;
-    }
-
-    // 📝 Insert the order
-    const [orderResult] = await db.query("CALL InsertOrder(?, ?)", [user_id, total_price]);
-
-    // 🆔 Extract inserted order ID
-    const orderId = orderResult[0][0]?.inserted_id || orderResult.insertId;
-
-    // 📦 Insert each product in the order_items table
-    for (let product of products) {
-        await db.query("CALL InsertOrderItem(?, ?, ?, ?)", [
-            orderId,
-            product.product_id,
-            product.quantity,
-            productPrices[product.product_id]
-        ]);
-    }
-
-    return orderId;
+        return newOrder.id;
+    });
 };
 
-
-// Get order by ID
+// 🔹 Get Order by ID
 const getOrderById = async (id) => {
-    const [order] = await db.query("CALL GetOrderById(?)", [id]);
-    return order.length ? order : null;
+    const order = await Order.findByPk(id, {
+        include: [
+            {
+                model: OrderItem,
+                include: [{ model: Product, attributes: ['id', 'name', 'price'] }]
+            }
+        ]
+    });
+    return order || null;
 };
 
-// Get orders for a specific user
+// 🔹 Get Orders by User
 const getUserOrders = async (user_id) => {
-    const [orders] = await db.query("CALL GetUserOrders(?)", [user_id]);
-    return orders;
+    return await Order.findAll({
+        where: { user_id },
+        include: [
+            {
+                model: OrderItem,
+                include: [{ model: Product, attributes: ['id', 'name', 'price'] }]
+            }
+        ],
+        order: [['created_at', 'DESC']]
+    });
 };
 
-// Update order status
-const statusMap = {
-    pending: 1,
-    shipped: 2,
-    delivered: 3,
-    cancelled: 4,
-};
+
 
 const updateOrderStatus = async (id, status) => {
-    const statusId = statusMap[status.toLowerCase()];
-    if (!statusId) {
+    if (!status) {
         throw new Error("Invalid status");
     }
 
-    const [result] = await db.query("CALL UpdateOrderStatus(?, ?)", [id, statusId]);
-    return result.affectedRows;
+    const [affectedRows] = await Order.update({ status: status }, {
+        where: { id }
+    });
+
+    return affectedRows;
 };
 
-// Delete an order
+// 🔹 Delete Order
 const deleteOrder = async (id) => {
-    const [result] = await db.query("CALL DeleteOrder(?)", [id]);
-    return result.affectedRows;
+    return await sequelize.transaction(async (t) => {
+        await OrderItem.destroy({ where: { order_id: id }, transaction: t });
+        const deleted = await Order.destroy({ where: { id }, transaction: t });
+        return deleted;
+    });
 };
 
-// Get paginated orders for a user
+// 🔹 Paginated Orders
 const getPaginatedUserOrders = async (user_id, limit, offset) => {
-    const [orders] = await db.query("CALL GetPaginatedUserOrders(?, ?, ?)", [user_id, limit, offset]);
-    return orders;
+    return await Order.findAll({
+        where: { user_id },
+        include: [
+            {
+                model: OrderItem,
+                include: [{ model: Product, attributes: ['name', 'price'] }]
+            }
+        ],
+        order: [['created_at', 'DESC']],
+        limit,
+        offset
+    });
 };
 
-// Get total order count for a user
+// 🔹 Total Orders Count for User
 const getTotalUserOrdersCount = async (user_id) => {
-    const [result] = await db.query("CALL GetTotalUserOrdersCount(?)", [user_id]);
-    return result[0].total;
+    return await Order.count({ where: { user_id } });
 };
 
 module.exports = {

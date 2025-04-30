@@ -3,12 +3,10 @@ const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-
 const productRouter = require('./routes/productRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
-
-
+const sequelize = require('./config/sequelize')
 
 const app = express();
 
@@ -37,7 +35,6 @@ app.use('/api/products', productRouter);
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', service: 'Product Service' });
 });
-
 
 // Start HTTPS server
 const PORT = 5004;

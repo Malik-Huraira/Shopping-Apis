@@ -2,15 +2,23 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-require('dotenv').config();
-
-
+const sequelize = require('./config/sequelize')
 const orderRouter = require('./routes/orderRouter');
 const authenticateUser = require('./middleware/authmiddleware');
+const { Order, OrderItem } = require('./model/associateModels');
 const createRateLimiter = require('./middleware/rateLimiter');
+require('dotenv').config();
 
 const app = express();
 
+
+sequelize.sync({ force: false })
+    .then(() => {
+        console.log('Database & tables created!');
+    })
+    .catch((error) => {
+        console.error('Error creating database & tables:', error);
+    });
 // Middleware
 app.use(cors());
 app.use(express.json());

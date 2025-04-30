@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.use(authenticateUser);
 
-router.post('/',  authorizeRoles('Admin', 'User'), createOrder);
-router.get('/:id',  authorizeRoles('Admin','User' ), getOrderById);
-router.get('/user/:userId',  authorizeRoles('Admin', 'User'), getUserOrders);
-router.put('/:id/status',  authorizeRoles('Admin'), updateOrderStatus);
-router.delete('/:id', authorizeRoles('Admin'), deleteOrder);
+router.post('/',  authorizeRoles(1,2), createOrder);
+router.get('/:id', authorizeRoles(1, 2), getOrderById);
+router.get('/user/:userId', authorizeRoles(1, 2), getUserOrders);
+router.put('/:id/status',  authorizeRoles(1), updateOrderStatus);
+router.delete('/:id', authorizeRoles(1), deleteOrder);
 
 module.exports = router;

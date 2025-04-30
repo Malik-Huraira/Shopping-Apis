@@ -6,6 +6,7 @@ const { clearProductCache } = require('../utils/cacheUtils');
 
 // Create a new product
 const createProduct = async (req, res) => {
+    console.log("Create Product Request Body:");
     const { name, description, price, stock } = req.body;
 
     if (!name || !description || price == null || stock == null) {
@@ -137,10 +138,33 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const bulkFetchProducts = async (req, res) => {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(HTTP.BadRequest).json({ error: 'Product IDs are required.' });
+    }
+
+    try {
+        const products = await productModel.bulkFetchProducts(ids);
+
+        if (products.length === 0) {
+            return res.status(HTTP.NotFound).json({ message: 'No products found for the given IDs.' });
+        }
+
+        res.status(HTTP.OK).json(products);
+    } catch (error) {
+        console.error('Error fetching products in bulk:', error);
+        res.status(HTTP.InternalServerError).json({ error: 'Internal server error', details: error.message });
+    }
+};
+
+
 module.exports = {
     createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    bulkFetchProducts
 };

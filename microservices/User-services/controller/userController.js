@@ -11,15 +11,7 @@ const createUser = async (req, res) => {
             error: "Name, Email, Password, Role, and Phone Number are required",
         });
     }
-
-    const { roleId, statusId } = await mapRoleAndStatus(role, status);
-
-    if (!roleId || !statusId) {
-        return res.status(HTTP.BadRequest).json({
-            error: "Invalid role or status. Allowed roles: admin, user | statuses: active, inactive",
-        });
-    }
-
+    console.log("Creating user with data:", req.body);
     try {
         const [existingUser, existingPhone] = await Promise.all([
             userModel.findUserByEmail(email),
@@ -38,8 +30,8 @@ const createUser = async (req, res) => {
             email,
             password: hashedPassword,
             phone_number,
-            status: statusId,
-            role: roleId,
+            status,
+            role,
             address,
             description
         });
