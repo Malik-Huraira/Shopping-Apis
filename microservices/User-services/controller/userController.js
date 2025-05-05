@@ -1,7 +1,6 @@
 const userModel = require('../model/userModel');
 const bcrypt = require('bcryptjs');
 const HTTP = require('../utils/httpStatusCodes');
-const mapRoleAndStatus = require("../utils/mapRoleAndStatus");
 
 const createUser = async (req, res) => {
     const { name, email, password, phone_number, status, role, address, description } = req.body;

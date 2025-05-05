@@ -7,7 +7,7 @@ const userRouter = require('./routes/userRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
 require('dotenv').config();
-
+const config = require('./config');
 const app = express();
 
 // Middleware
@@ -45,8 +45,7 @@ app.get('/health', (req, res) => {
 
 
 // Start HTTPS server
-const PORT = 5005;
-app.listen(PORT, () => {
-    console.log(`🔐 HTTPS server running at https://localhost:${PORT}`);
+app.listen(config.app.port, () => {
+console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
+console.log(`Base URL: ${config.app.baseUrl}`);
 });
-

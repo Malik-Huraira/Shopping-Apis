@@ -4,7 +4,7 @@ const helmet = require('helmet');
 const https = require('https');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-
+const config = require('./config');
 const authRouter = require('./routes/authRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
@@ -41,7 +41,7 @@ app.get('/health', (req, res) => {
 
 
 // Start HTTPS server
-const PORT = 5001;
-app.listen(PORT, () => {
-    console.log(`🚀 HTTP server running at http://localhost:${PORT}`);
+app.listen(config.app.port, () => {
+console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
+console.log(`Base URL: ${config.app.baseUrl}`);
 });

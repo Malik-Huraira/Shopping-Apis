@@ -164,3 +164,4 @@
 [2025-04-30 14:36:22] User: Admin123@gmail.com - Action: Signup - Status: SUCCESS
 [2025-04-30 14:36:51] User: Admin123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-30 14:49:23] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
+[2025-05-05 15:58:23] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
