@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-      "dev": "cross-env NODE_ENV=development nodemon server.js",
-      "start": "cross-env NODE_ENV=production node server.js"
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
+    "start": "cross-env NODE_ENV=production node server.js"
   },
   "keywords": [],
   "author": "",
@@ -24,8 +24,12 @@
     "jsonwebtoken": "^9.0.2",
     "moment": "^2.30.1",
     "mysql2": "^3.14.1",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.10.0",
     "redis": "^4.7.0",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

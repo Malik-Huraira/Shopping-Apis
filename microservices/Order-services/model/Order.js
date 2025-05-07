@@ -7,17 +7,19 @@ Order.init({
     user_id: { type: DataTypes.INTEGER, allowNull: false },
     total_price: { type: DataTypes.FLOAT, allowNull: false },
     status: { type: DataTypes.STRING, allowNull: false },
-    created_at: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+    createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at',
+        defaultValue: DataTypes.NOW
+    },
+    updatedAt: { type: DataTypes.DATE }
 }, {
     sequelize,
     modelName: 'Order',
     tableName: 'orders',
-    timestamps: false
+    timestamps: true
 });
 
-// Order.hasMany(OrderItem, {
-//     foreignKey: 'order_id',
-//     onDelete: 'CASCADE'
-// });
+
 
 module.exports = Order;

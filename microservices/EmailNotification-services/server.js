@@ -1,6 +1,7 @@
 const express = require('express');
 const emailRouter = require('./routes/emailRouter');
-
+const sequelize = require('./config/sequelize');
+require('./cron/sendPendingEmails');
 
 const app = express();
 

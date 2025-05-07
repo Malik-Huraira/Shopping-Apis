@@ -8,15 +8,19 @@ const config = require('./config');
 const authRouter = require('./routes/authRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
-
-
+const sequelize = require('./config/sequelize');
 const app = express();
+
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(bodyParser.json());
+
+if (process.env.ENABLE_CRON === 'true') {
+    require('./cron/cleanupExpiredSessions');
+}
 
 // Rate limiter middleware
 app.use('/api', createRateLimiter({
@@ -42,6 +46,6 @@ app.get('/health', (req, res) => {
 
 // Start HTTPS server
 app.listen(config.app.port, () => {
-console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
-console.log(`Base URL: ${config.app.baseUrl}`);
+    console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
+    console.log(`Base URL: ${config.app.baseUrl}`);
 });

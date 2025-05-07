@@ -12,18 +12,15 @@ const config = require('./config');
 const app = express();
 
 
-sequelize.sync({ force: false })
-    .then(() => {
-        console.log('Database & tables created!');
-    })
-    .catch((error) => {
-        console.error('Error creating database & tables:', error);
-    });
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(helmet());
 app.use(bodyParser.json());
+
+if (process.env.ENABLE_CRON === 'true') {
+    require('./cron/autoCancelOrders');
+}
 
 // Rate limiter middleware
 app.use('/api', createRateLimiter({

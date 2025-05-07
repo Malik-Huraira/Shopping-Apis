@@ -165,3 +165,20 @@
 [2025-04-30 14:36:51] User: Admin123@gmail.com - Action: Login - Status: SUCCESS
 [2025-04-30 14:49:23] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (User already exists)
 [2025-05-05 15:58:23] User: AnusAwan123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-06 15:54:52] User: admin@1gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-05-06 16:06:48] User: admin@1gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-05-06 16:30:57] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 16:35:05] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 16:38:46] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 16:45:54] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 16:50:36] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 16:53:18] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 17:00:18] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 17:00:50] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 17:01:14] User: basitmalik123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-05-06 17:13:55] User: basitmalik123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-05-06 17:15:31] User: admin@1gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-05-06 17:16:10] User: basitmalik123@gmail.com - Action: Login - Status: FAILED (Server error)
+[2025-05-06 17:19:30] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-07 10:48:14] User: admin@1gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-05-07 10:48:47] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS

@@ -1,4 +1,5 @@
-const { sendEmail } = require('../model/emailModel');
+// emailController.js
+const { sendEmail } = require('../utils/email'); // Correct path to emailUtils.js
 const { createEmailContent } = require('../view/emailview');
 const HTTP = require('../utils/httpStatusCodes'); // Import HTTP status codes
 
