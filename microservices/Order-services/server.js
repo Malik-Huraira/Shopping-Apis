@@ -7,6 +7,7 @@ const orderRouter = require('./routes/orderRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const { Order, OrderItem } = require('./model/associateModels');
 const createRateLimiter = require('./middleware/rateLimiter');
+const {connectProducer} = require('./kafka/producer');
 require('dotenv').config();
 const config = require('./config');
 const app = express();
@@ -42,6 +43,14 @@ app.use('/api/orders', orderRouter);
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', service: 'Order Service' });
 });
+
+connectProducer()
+    .then(() => {
+        console.log('Kafka producer connected');
+    })
+    .catch((error) => {
+        console.error('Error connecting Kafka producer:', error);
+    });
 
 // Start HTTPS server
 app.listen(config.app.port, () => {

@@ -15,5 +15,6 @@
             "connectionTimeout": 30,
             "askForPassword": true
         }
-    ]
+    ],
+    "postman.settings.dotenv-detection-notification-visibility": false
 }

@@ -4,6 +4,7 @@ const User = require('../../Auth-services/model/User');
 const HTTP = require("../utils/httpStatusCodes");
 const { getCache, setCache, clearOrderCache } = require("../utils/cacheUtils");
 const { Op } = require("sequelize");
+const { publishEvent } = require('../kafka/producer');
 const axios = require('axios');
 require('dotenv').config();
 const orderModel = require('../model/orderModel');
@@ -66,7 +67,13 @@ const createOrder = async (req, res) => {
 
         // ✅ Step 5: Clear Redis or memory cache (if used)
         await clearOrderCache(req.user.id);
-
+        await publishEvent('order.placed', {
+            order_id: order.id,
+            user_id: req.user.id,
+            total_price,
+            items,
+            timestamp: new Date(),
+        });
         return res.status(HTTP.Created).json({
             message: "Order created successfully",
             order_id: order.id
@@ -165,6 +172,11 @@ const updateOrderStatus = async (req, res) => {
         }
 
         await clearOrderCache(null, id);
+        await publishEvent('order.status.updated', {
+            order_id: id,
+            new_status: status,
+            timestamp: new Date(),
+        });
         return res.status(HTTP.OK).json({ message: "Order status updated successfully" });
     } catch (error) {
         console.error("❌ Update Order Status Error:", error);
@@ -184,6 +196,11 @@ const deleteOrder = async (req, res) => {
         }
 
         await clearOrderCache(null, id);
+        await publishEvent('order.deleted', {
+            order_id: id,
+            deleted_by: req.user?.id || "system",
+            timestamp: new Date(),
+        });
         return res.status(HTTP.OK).json({ message: "Order deleted successfully" });
     } catch (error) {
         console.error("❌ Delete Order Error:", error);

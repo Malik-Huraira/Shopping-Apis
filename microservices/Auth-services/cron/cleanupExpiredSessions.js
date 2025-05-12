@@ -3,7 +3,7 @@ const db = require('../model/index');
 const { Op } = require('sequelize');
 
 // Runs every minute
-cron.schedule('0 * * * *', async () => {
+cron.schedule('30 * * * *', async () => {
     try {
         console.log('🧹 Cleaning up expired sessions...');
 
