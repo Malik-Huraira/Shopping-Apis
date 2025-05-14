@@ -9,6 +9,7 @@ const authRouter = require('./routes/authRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
 const sequelize = require('./config/sequelize');
+const { connectProducer } = require('./kafka/producer');
 const app = express();
 
 
@@ -42,6 +43,14 @@ app.use('/api/auth', authRouter);
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', service: 'Auth Service' });
 });
+
+connectProducer()
+    .then(() => {
+        console.log('Kafka producer connected');
+    })
+    .catch((error) => {
+        console.error('Error connecting Kafka producer:', error);
+    });
 
 
 // Start HTTPS server

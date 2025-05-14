@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { publishEvent } = require("../kafka/producer");
 
 const {
     findUserByEmail,
@@ -64,6 +65,16 @@ const signupUser = async (req, res) => {
         });
 
         logActivity(email, "Signup", "SUCCESS");
+        await publishEvent("user.registered", {
+            event: "user_registered",
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+            phone_number: user.phone_number,
+            role_id: user.role_id,
+            status_id: user.status_id,
+            timestamp: new Date().toISOString(),
+        });
         res.status(HTTP.Created).json({ message: "User registered successfully", user });
     } catch (err) {
         console.error("Signup error:", err);

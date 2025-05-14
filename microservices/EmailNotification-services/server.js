@@ -3,6 +3,7 @@ const emailRouter = require('./routes/emailRouter');
 const sequelize = require('./config/sequelize');
 const { startConsumer } = require('./kafka/consumer');
 require('./cron/sendPendingEmails');
+require('dotenv').config(); 
 
 const app = express();
 

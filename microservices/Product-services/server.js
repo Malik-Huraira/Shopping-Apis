@@ -8,7 +8,7 @@ const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
 const sequelize = require('./config/sequelize')
 const config = require('./config');
-
+const { startConsumer } = require('./kafka/consumer');
 const app = express();
 
 // Middleware
@@ -37,6 +37,7 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK', service: 'Product Service' });
 });
 
+startConsumer().then(() => console.log('📦 Product Kafka Consumer started'));
 // Start HTTPS server
 app.listen(config.app.port, () => {
 console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
