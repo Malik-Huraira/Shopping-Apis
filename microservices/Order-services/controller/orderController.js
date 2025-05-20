@@ -3,6 +3,7 @@ const OrderItem = require('../model/OrderItem');
 const User = require('../../Auth-services/model/User');
 const HTTP = require("../utils/httpStatusCodes");
 const { getCache, setCache, clearOrderCache } = require("../utils/cacheUtils");
+const { publishOrderCreated } = require('../RabbitMq/Producer');
 const { Op } = require("sequelize");
 const axios = require('axios');
 require('dotenv').config();
@@ -16,10 +17,8 @@ const createOrder = async (req, res) => {
     }
 
     try {
-        // ✅ Step 1: Extract product IDs
         const productIds = products.map(p => p.product_id);
 
-        // ✅ Step 2: Call Product Service to fetch product data
         const { data: productData } = await axios.post(
             `${process.env.PRODUCT_SERVICE_URL}/api/products/bulk`,
             { ids: productIds },
@@ -30,12 +29,10 @@ const createOrder = async (req, res) => {
             }
         );
 
-
         if (!productData || productData.length !== productIds.length) {
             return res.status(HTTP.BadRequest).json({ error: "One or more products not found." });
         }
 
-        // ✅ Step 3: Calculate total price and prepare order items
         let total_price = 0;
         const items = [];
 
@@ -50,23 +47,41 @@ const createOrder = async (req, res) => {
 
             items.push({
                 product_id: product.id,
+                name: product.name,
+                description: product.description,
                 quantity: p.quantity,
                 price: parseFloat(product.price)
             });
         }
 
-        // ✅ Step 4: Create order with transaction
-        console.log("User ID:", req.user.id);
+        // Create order
         const order = await orderModel.createOrder(
-
             req.user.id,
             total_price,
             items
         );
+        console.log('Order created:', order);
 
-        // ✅ Step 5: Clear Redis or memory cache (if used)
         await clearOrderCache(req.user.id);
 
+        // Fetch user email and name from req.user (adjust according to your auth system)
+        const user_email = req.user.email;  // Make sure req.user.email exists
+        const user_name = req.user.username;  // fallback to 'Customer' if name missing
+
+        console.log('Publishing order_created event with:', { order_id: order, user_email, user_name });
+        try {
+            await publishOrderCreated({
+                order_id: order,
+                user_id: req.user.id,
+                user_email,
+                user_name,
+                total_price,
+                items,
+            });
+        } catch (err) {
+            console.error('❌ Failed to publish order_created event:', err);
+        }
+        console.log('User info:', req.user);
         return res.status(HTTP.Created).json({
             message: "Order created successfully",
             order_id: order.id

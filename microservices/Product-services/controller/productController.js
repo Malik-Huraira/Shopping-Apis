@@ -2,7 +2,7 @@ const productModel = require("../model/productModels");
 const HTTP = require("../utils/httpStatusCodes");
 const redisClient = require('../config/redisClient');
 const { clearProductCache } = require('../utils/cacheUtils');
-
+const { publishProductCreated } = require('../rabbitmq/Producer');
 
 // Create a new product
 const createProduct = async (req, res) => {
@@ -14,9 +14,20 @@ const createProduct = async (req, res) => {
             error: "All fields (name, description, price, stock) are required"
         });
     }
-
+    console.log("Request Body:", req.body);
     try {
         const productId = await productModel.createProduct({ name, description, price, stock });
+        const user_email = req.user.email;  // Make sure req.user.email exists
+        const user_name = req.user.username;  // fallback to 'Customer' if name missing
+
+        console.log('Publishing Product_created event with:', { name, user_email, user_name ,description, price });
+        await publishProductCreated({
+            product_name: name,
+            description,
+            user_email,
+            user_name,
+            price,
+        });
         res.status(HTTP.Created).json({ message: "Product added successfully", id: productId });
     } catch (error) {
         console.error("Create Product Error:", error);
@@ -46,7 +57,7 @@ const getAllProducts = async (req, res) => {
             productModel.getPaginatedProducts(limit, offset),
             productModel.getTotalProductsCount()
         ]);
-
+    
         const result = {
             products,
             currentPage: page,
@@ -54,7 +65,7 @@ const getAllProducts = async (req, res) => {
             totalProducts,
             limit
         };
-
+ 
         // Cache result for 5 minutes
         await redisClient.setEx(cacheKey, 300, JSON.stringify(result));
 

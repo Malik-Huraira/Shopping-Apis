@@ -6,6 +6,7 @@ require('dotenv').config();
 const productRouter = require('./routes/productRouter');
 const authenticateUser = require('./middleware/authmiddleware');
 const createRateLimiter = require('./middleware/rateLimiter');
+const { connectRabbitMQ } = require('./rabbitmq/Connection');
 const sequelize = require('./config/sequelize')
 const config = require('./config');
 
@@ -38,7 +39,18 @@ app.get('/health', (req, res) => {
 });
 
 // Start HTTPS server
-app.listen(config.app.port, () => {
-console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
-console.log(`Base URL: ${config.app.baseUrl}`);
-});
+
+(async () => {
+    try {
+        await connectRabbitMQ();
+        console.log('📦 Product Service is connected to RabbitMQ...');
+       
+        app.listen(config.app.port, () => {
+            console.log(`${config.app.name} running in ${config.env} mode on port ${config.app.port}`);
+            console.log(`Base URL: ${config.app.baseUrl}`);
+            });
+    } catch (error) {
+        console.error('Failed to start server due to RabbitMQ connection error:', error);
+        process.exit(1);
+    }
+})();

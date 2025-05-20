@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const HTTP = require('../utils/httpStatusCodes'); // your centralized HTTP codes
-
 const authenticateUser = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
@@ -30,6 +29,7 @@ const authenticateUser = async (req, res, next) => {
         // Verify JWT token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         console.log("Decoded Token:", decoded);
+
 
         // Attach the decoded user data to the request object
         req.user = decoded;

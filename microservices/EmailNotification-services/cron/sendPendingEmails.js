@@ -3,7 +3,7 @@ const Email = require('../model/email');
 const sendEmail = require('../utils/email');
 
 // Run every minute (change to hourly with `0 * * * *`)
-cron.schedule('* * * * *', async () => {
+cron.schedule('6 * * * *', async () => {
     console.log('📧 Checking for pending emails...');
 
     try {

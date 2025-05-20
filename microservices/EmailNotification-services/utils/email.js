@@ -1,4 +1,3 @@
-// emailUtils.js
 const nodemailer = require('nodemailer');
 const Email = require('../model/email'); // Ensure this is the correct import path
 
@@ -8,8 +7,10 @@ const sendEmail = async (to, subject, message) => {
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
+
         },
     });
+
 
     transporter.verify((err, success) => {
         if (err) {

@@ -182,3 +182,8 @@
 [2025-05-06 17:19:30] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
 [2025-05-07 10:48:14] User: admin@1gmail.com - Action: Login - Status: FAILED (Invalid credentials)
 [2025-05-07 10:48:47] User: basitmalik123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-20 11:59:28] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-20 13:08:52] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-20 13:19:04] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-20 15:05:37] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-20 16:21:37] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
