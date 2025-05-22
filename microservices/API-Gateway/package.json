@@ -4,14 +4,17 @@
     "main": "server.js",
     "scripts": {
         "dev": "cross-env NODE_ENV=development nodemon server.js",
-        "start": "cross-env NODE_ENV=production node server.js"
+        "start": "cross-env NODE_ENV=production node server.js",
+        "ssl:generate-key": "openssl genrsa -out ssl/key.pem 2048",
+        "ssl:generate-cert": "openssl req -new -x509 -key ssl/key.pem -out ssl/cert.pem -days 365 -subj \"/CN=localhost\""
     },
     "dependencies": {
         "axios": "^1.8.4",
         "dotenv": "^10.0.0",
         "express": "^4.17.1",
         "http-proxy-middleware": "^2.0.6",
-        "morgan": "^1.10.0"
+        "morgan": "^1.10.0",
+        "ws": "^8.18.2"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",

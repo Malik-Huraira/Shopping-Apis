@@ -1,6 +1,7 @@
 const userModel = require('../model/userModel');
 const bcrypt = require('bcryptjs');
 const HTTP = require('../utils/httpStatusCodes');
+const notifyNewUser = require("../events/notifyAdmin");
 
 const createUser = async (req, res) => {
     const { name, email, password, phone_number, status, role, address, description } = req.body;
@@ -34,6 +35,20 @@ const createUser = async (req, res) => {
             address,
             description
         });
+
+        await notifyNewUser({
+            id: userId,
+            name,       
+            email,
+            phone_number,
+            status,
+            role,
+            address,
+            description
+        });
+        console.log("User created with ID:", userId);
+        // Notify admin about new user
+        // await notifyNewUser(userId);
 
         res.status(HTTP.Created).json({ message: "User added successfully", id: userId });
     } catch (err) {

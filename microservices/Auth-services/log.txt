@@ -194,3 +194,13 @@
 [2025-05-14 10:54:48] User: malikhurara123@gmail.com - Action: Signup - Status: SUCCESS
 [2025-05-14 11:06:44] User: nazeefmasood123@gmail.com - Action: Signup - Status: SUCCESS
 [2025-05-14 11:08:28] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 11:08:07] User: AnusAwan123@gmail.com - Action: Login - Status: FAILED (Invalid credentials)
+[2025-05-21 11:08:22] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 11:34:44] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 11:35:47] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 12:03:45] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 15:33:31] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 15:34:33] User: sarjeel123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-05-21 15:37:43] User: AnusAwan123@gmail.com - Action: Signup - Status: SUCCESS
+[2025-05-21 16:50:59] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS
+[2025-05-21 17:51:55] User: malikhurara123@gmail.com - Action: Login - Status: SUCCESS

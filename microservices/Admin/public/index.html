@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            margin-top: 50px;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 700px;
+            max-width: 95%;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        ul#notifications {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .notification {
+            background: #f0f4ff;
+            border-left: 4px solid #3366ff;
+            padding: 16px 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .notification:hover {
+            background: #e0ebff;
+        }
+
+        .notification .title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .notification .meta,
+        .notification .timestamp {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .notification .timestamp {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .notification .products,
+        .notification .user-details {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .notification .products li,
+        .notification .user-details li {
+            font-size: 14px;
+            color: #444;
+        }
+
+        ul#notifications::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ul#notifications::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📢 Admin Notifications</h1>
+        <ul id="notifications"></ul>
+    </div>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8081");
+
+        socket.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            const li = document.createElement("li");
+            li.className = "notification";
+            const timestamp = new Date(data.timestamp || Date.now()).toLocaleString();
+
+            let content = `<div class="title">${data.message}</div>`;
+            content += `<div class="meta">Type: <strong>${data.type}</strong></div>`;
+
+            if (data.type === "new_order") {
+                content += `
+                    <div class="meta">User ID: <strong>${data.userId}</strong> | Total Price: <strong>Rs. ${data.total_price.toFixed(2)}</strong></div>
+                    <div class="products">
+                        <strong>Products:</strong>
+                        <ul>
+                            ${data.products.map(p => `<li>Product ID: ${p.product_id}, Quantity: ${p.quantity}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (data.type === "new_user") {
+                const user = data.userId; // because user details are wrongly sent under 'userId'
+                content = `<div class="title">👤 New user registered (ID: ${user.id})</div>`;
+                content += `<div class="meta">Type: <strong>${data.type}</strong></div>`;
+                content += `
+        <div class="user-details">
+            <strong>User Details:</strong>
+            <ul>
+                <li>User ID: ${user.id}</li>
+                <li>Name: ${user.name}</li>
+                <li>Email: ${user.email}</li>
+                <li>Phone: ${user.phone_number}</li>
+                <li>Status: ${user.status}</li>
+                <li>Role: ${user.role}</li>
+                <li>Address: ${user.address}</li>
+                <li>Description: ${user.description}</li>
+            </ul>
+        </div>
+    `;
+            }
+
+            content += `<div class="timestamp">🕒 ${timestamp}</div>`;
+            li.innerHTML = content;
+            document.getElementById("notifications").prepend(li); // newest on top
+        };
+
+        socket.onopen = () => console.log("Connected to WebSocket");
+        socket.onclose = () => console.log("Disconnected");
+    </script>
+</body>
+
+</html>
