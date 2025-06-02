@@ -1,4 +1,4 @@
-const userModel = require('../models/userModel');
+const User = require("../Services/userService");
 const bcrypt = require('bcryptjs');
 const HTTP = require('../utils/httpStatusCodes');
 
@@ -10,15 +10,22 @@ const createUser = async (req, res) => {
             return res.status(HTTP.BadRequest).json({ error: "Missing required fields (Name, Email, Password, Phone, Status, Role)" });
         }
 
-        const existingUser = await userModel.findUserByEmail(email);
+        const existingUser = await User.findUserByEmail(email);
         if (existingUser) {
             return res.status(HTTP.BadRequest).json({ error: "User with this email already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const userId = await userModel.createUser({
-            name, email, password: hashedPassword, phone_number, status, role, address, description
+        const userId = await User.createUser({
+          name,
+          email,
+          password: hashedPassword,
+          phone_number,
+          status,
+          role,
+          address,
+          description,
         });
 
         res.status(HTTP.Created).json({ message: "User added successfully", id: userId });
@@ -37,8 +44,8 @@ const getAllUsers = async (req, res) => {
         limit = parseInt(limit) || 10;
         const offset = (page - 1) * limit;
 
-        const users = await userModel.getPaginatedUsers(limit, offset);
-        const totalUsers = await userModel.getTotalUsersCount();
+        const users = await User.getPaginatedUsers(limit, offset);
+        const totalUsers = await User.getTotalUsersCount();
 
         res.status(HTTP.OK).json({
             users,
@@ -55,7 +62,7 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
     try {
-        const user = await userModel.getUserById(req.params.id);
+        const user = await User.getUserById(req.params.id);
         if (!user) {
             return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }
@@ -67,7 +74,7 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const affectedRows = await userModel.updateUser(req.params.id, req.body);
+        const affectedRows = await User.updateUser(req.params.id, req.body);
         if (affectedRows === 0) {
             return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }
@@ -79,7 +86,7 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const affectedRows = await userModel.deleteUser(req.params.id);
+        const affectedRows = await User.deleteUser(req.params.id);
         if (affectedRows === 0) {
             return res.status(HTTP.NotFound).json({ message: 'User not found' });
         }

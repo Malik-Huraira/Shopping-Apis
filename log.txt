@@ -67,3 +67,7 @@
 [2025-04-07 12:25:48] User: john1234@example.com - Action: Login - Status: SUCCESS
 [2025-04-07 12:25:49] User: john1234@example.com - Action: Login - Status: SUCCESS
 [2025-04-07 12:25:50] User: john1234@example.com - Action: Login - Status: SUCCESS
+[2025-06-02 12:10:54] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-06-02 12:20:28] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-06-02 12:20:39] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)
+[2025-06-02 12:26:30] User: AnusAwan123@gmail.com - Action: Signup - Status: FAILED (Database error)

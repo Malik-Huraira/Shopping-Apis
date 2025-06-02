@@ -1,4 +1,4 @@
-const productModel = require("../models/productModels");
+const Product = require("../Services/productService");
 const HTTP = require("../utils/httpStatusCodes");
 
 const createProduct = async (req, res) => {
@@ -9,7 +9,7 @@ const createProduct = async (req, res) => {
             return res.status(HTTP.BadRequest).json({ error: "All fields (name, description, price, stock) are required" });
         }
 
-        const productId = await productModel.createProduct({ name, description, price, stock });
+        const productId = await Product.createProduct({ name, description, price, stock });
 
         res.status(HTTP.Created).json({ message: "Product added successfully", id: productId });
     } catch (error) {
@@ -26,8 +26,8 @@ const getAllProducts = async (req, res) => {
         limit = parseInt(limit) || 10;
         const offset = (page - 1) * limit;
 
-        const products = await productModel.getPaginatedProducts(limit, offset);
-        const totalProducts = await productModel.getTotalProductsCount();
+        const products = await Product.getPaginatedProducts(limit, offset);
+        const totalProducts = await Product.getTotalProductsCount();
 
         res.status(HTTP.OK).json({
             products,
@@ -44,7 +44,7 @@ const getAllProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
     try {
-        const product = await productModel.getProductById(req.params.id);
+        const product = await Product.getProductById(req.params.id);
 
         if (!product) {
             return res.status(HTTP.NotFound).json({ message: "Product not found" });
@@ -65,7 +65,7 @@ const updateProduct = async (req, res) => {
             return res.status(HTTP.BadRequest).json({ error: "All fields (name, description, price, stock) are required" });
         }
 
-        const updatedRows = await productModel.updateProduct(req.params.id, { name, description, price, stock });
+        const updatedRows = await Product.updateProduct(req.params.id, { name, description, price, stock });
 
         if (updatedRows === 0) {
             return res.status(HTTP.NotFound).json({ message: "Product not found" });
@@ -80,7 +80,7 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
     try {
-        const deletedRows = await productModel.deleteProduct(req.params.id);
+        const deletedRows = await Product.deleteProduct(req.params.id);
 
         if (deletedRows === 0) {
             return res.status(HTTP.NotFound).json({ message: "Product not found" });
