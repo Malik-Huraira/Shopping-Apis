@@ -1,14 +1,13 @@
 const Order = require("../model/Order");
 const OrderItem = require("../model/OrderItem");
-const User = require("../../Auth-services/model/User");
 const HTTP = require("../utils/httpStatusCodes");
 const { getCache, setCache, clearOrderCache } = require("../utils/cacheUtils");
-const { Op } = require("sequelize");
 const { publishEvent } = require("../kafka/producer");
 const axios = require("axios");
 require("dotenv").config();
 const orderModel = require("../model/orderModel");
 const notifyNewOrder = require("../events/notifyAdmin");
+const { logger } = require("../utils/logger");
 
 const createOrder = async (req, res) => {
   const { products } = req.body;
@@ -27,9 +26,9 @@ const createOrder = async (req, res) => {
       { ids: productIds },
       {
         headers: {
-          Authorization: `Bearer ${req.headers.authorization}`,
+          Authorization: req.headers.authorization,
         },
-      }
+      },
     );
     if (!productData || productData.length !== productIds.length) {
       return res
@@ -40,10 +39,10 @@ const createOrder = async (req, res) => {
     await notifyNewOrder({
       userId: req.user.id,
       products,
-        total_price: products.reduce((acc, p) => {  
-            const product = productData.find((prod) => prod.id === p.product_id);
-            return acc + (product ? parseFloat(product.price) * p.quantity : 0);
-        }, 0),
+      total_price: products.reduce((acc, p) => {
+        const product = productData.find((prod) => prod.id === p.product_id);
+        return acc + (product ? parseFloat(product.price) * p.quantity : 0);
+      }, 0),
       timestamp: new Date(),
     });
 
@@ -70,12 +69,12 @@ const createOrder = async (req, res) => {
     }
 
     // ✅ Step 4: Create order with transaction
-    console.log("User ID:", req.user.id);
+    logger.info("User ID:", req.user.id);
     const order = await orderModel.createOrder(req.user.id, total_price, items);
 
     const user_email = req.user.email; // Make sure req.user.email exists
     const user_name = req.user.username; // fallback to 'Customer' if name missing
-    console.log("Publishing order_created event with:", {
+    logger.info("Publishing order_created event with:", {
       order_id: order,
       user_email,
       user_name,
@@ -97,7 +96,12 @@ const createOrder = async (req, res) => {
       order_id: order.id,
     });
   } catch (error) {
-    console.error("❌ Create Order Error:", error);
+    logger.error("❌ Create Order Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code,
+    });
     return res.status(HTTP.InternalServerError).json({
       error: "Failed to create order",
       details: error.message,
@@ -123,7 +127,11 @@ const getOrderById = async (req, res) => {
     setCache(cacheKey, JSON.stringify(order));
     return res.status(HTTP.OK).json(order);
   } catch (error) {
-    console.error("❌ Get Order By ID Error:", error);
+    logger.error("❌ Get Order By ID Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return res
       .status(HTTP.InternalServerError)
       .json({ error: "Failed to fetch order", details: error.message });
@@ -164,7 +172,11 @@ const getUserOrders = async (req, res) => {
     await setCache(cacheKey, JSON.stringify(response));
     return res.status(HTTP.OK).json(response);
   } catch (error) {
-    console.error("❌ Get User Orders Error:", error);
+    logger.error("❌ Get User Orders Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return res.status(HTTP.InternalServerError).json({
       error: "Failed to fetch user orders",
       details: error.message,
@@ -199,7 +211,11 @@ const updateOrderStatus = async (req, res) => {
       .status(HTTP.OK)
       .json({ message: "Order status updated successfully" });
   } catch (error) {
-    console.error("❌ Update Order Status Error:", error);
+    logger.error("❌ Update Order Status Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return res
       .status(HTTP.InternalServerError)
       .json({ error: "Failed to update order status", details: error.message });
@@ -225,7 +241,11 @@ const deleteOrder = async (req, res) => {
     });
     return res.status(HTTP.OK).json({ message: "Order deleted successfully" });
   } catch (error) {
-    console.error("❌ Delete Order Error:", error);
+    logger.error("❌ Delete Order Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    });
     return res
       .status(HTTP.InternalServerError)
       .json({ error: "Failed to delete order", details: error.message });

@@ -1,52 +1,53 @@
-const path = require('path');
-const fs = require('fs');
-const dotenv = require('dotenv');
+require("dotenv").config();
 
-// Fix 1: Handle case where NODE_ENV might be undefined
-const env = (process.env.NODE_ENV || 'development').toLowerCase(); // Ensure lowercase
+const config = {
+  port: process.env.PORT || 5001,
+  nodeEnv: process.env.NODE_ENV || "development",
+  baseUrl: process.env.BASE_URL || "http://localhost:5001",
 
-// Fix 2: More robust .env file loading
-const envDir = path.join(__dirname, '..');
-const envPath = path.join(envDir, `.env.${env}`);
+  database: {
+    host: process.env.DB_HOST || "localhost",
+    port: process.env.DB_PORT || 3306,
+    username: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME || "auth",
+    dialect: "mysql",
+    logging: process.env.NODE_ENV === "development" ? console.log : false,
+  },
 
-if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-} else if (env === 'development') {
-    // Special handling for development as it's commonly used
-    
-    const defaultEnvPath = path.join(envDir, '.env');
-    if (fs.existsSync(defaultEnvPath)) {
-        dotenv.config({ path: defaultEnvPath });
-    } else {
-        console.warn(`No .env file found for ${env} environment at ${envPath}`);
-    }
-}
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+  },
 
-// Fix 3: Better error handling for config loading
-let config;
-try {
+  kafka: {
+    brokers: (process.env.KAFKA_BROKERS || "localhost:9092").split(","),
+    clientId: "auth-service",
+  },
 
-    config = require(`./environments/${env}`);
+  logging: {
+    level: process.env.LOG_LEVEL || "info",
+    format: process.env.LOG_FORMAT || "json",
+  },
 
-    // Fix 4: Set environment flags
-    config.env = env;
-    config.isProd = env === 'production';
-    config.isTest = env === 'testing';
-    config.isDev = !config.isProd && !config.isTest;
+  cron: {
+    enabled: process.env.ENABLE_CRON === "true",
+  },
 
-    // Fix 5: Default values if config loading was partial
-    config.db = config.db || {};
-    config.app = config.app || {};
-    config.jwt = config.jwt || {};
+  rateLimiter: {
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+  },
+};
 
-} catch (err) {
-    console.error(`Failed to load ${env} config:`, err);
+// Validate required environment variables
+const requiredEnvVars = ["JWT_SECRET", "DB_PASSWORD"];
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
-    // Provide more helpful error message
-    if (err.code === 'MODULE_NOT_FOUND') {
-        console.error(`Please create config/environments/${env}.js`);
-    }
-    process.exit(1);
+if (missingEnvVars.length > 0) {
+  throw new Error(
+    `Missing required environment variables: ${missingEnvVars.join(", ")}`,
+  );
 }
 
 module.exports = config;

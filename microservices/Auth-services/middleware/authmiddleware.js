@@ -1,45 +1,101 @@
-const jwt = require('jsonwebtoken');
-const HTTP = require('../utils/httpStatusCodes'); // your centralized HTTP codes
+const jwt = require("jsonwebtoken");
+const { logger } = require("../utils/logger");
+const HTTP = require("../utils/httpStatusCodes");
+const { Session } = require("../model");
 
 const authenticateUser = async (req, res, next) => {
-    try {
-        const authHeader = req.headers.authorization;
+  try {
+    const authHeader = req.headers.authorization;
 
-        if (!authHeader || !authHeader.startsWith("Bearer")) {
-            console.error("Authorization header is missing or malformed.");
-            return res.status(HTTP.Unauthorized).json({ error: "Unauthorized - No Token Provided" });
-        }
-
-        // Extract the token from the Authorization header
-        const token = authHeader.split(' ')[1];
-        console.log("Extracted Token:", token);
-
-        // Check if token is undefined or empty
-        if (!token) {
-            console.error("No token found in Authorization header.");
-            return res.status(HTTP.Unauthorized).json({ error: "Unauthorized - No Token Found" });
-        }
-
-        // Check if JWT_SECRET is defined in environment variables
-        if (!process.env.JWT_SECRET) {
-            console.error("JWT_SECRET is not defined in environment variables");
-            return res.status(HTTP.InternalServerError).json({ error: "Server configuration error" });
-        }
-
-        // Verify JWT token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded Token:", decoded);
-
-        // Attach the decoded user data to the request object
-        req.user = decoded;
-
-        next();
-    } catch (err) {
-        console.error("Auth Error:", err.message);
-        return res.status(HTTP.Unauthorized).json({ error: "Invalid token", details: err.message });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      logger.warn("Authorization header missing or malformed", {
+        ip: req.ip,
+        path: req.path,
+      });
+      return res.status(HTTP.Unauthorized).json({
+        error: "Unauthorized",
+        message: "No token provided",
+      });
     }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      logger.warn("Token not found in Authorization header", {
+        ip: req.ip,
+        path: req.path,
+      });
+      return res.status(HTTP.Unauthorized).json({
+        error: "Unauthorized",
+        message: "Invalid token format",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      logger.error("JWT_SECRET not configured");
+      return res.status(HTTP.InternalServerError).json({
+        error: "Server error",
+        message: "Authentication service misconfigured",
+      });
+    }
+
+    // Check if token is revoked
+    const session = await Session.findOne({
+      where: { token, is_revoked: false },
+    });
+    if (!session) {
+      logger.warn("Token revoked or not found", {
+        ip: req.ip,
+        path: req.path,
+      });
+      return res.status(HTTP.Unauthorized).json({
+        error: "Unauthorized",
+        message: "Token has been revoked",
+      });
+    }
+
+    // Verify JWT token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Attach user data to request
+    req.user = decoded;
+    req.token = token;
+
+    next();
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      logger.warn("Token expired", {
+        ip: req.ip,
+        path: req.path,
+      });
+      return res.status(HTTP.Unauthorized).json({
+        error: "Unauthorized",
+        message: "Token has expired",
+      });
+    }
+
+    if (err.name === "JsonWebTokenError") {
+      logger.warn("Invalid token", {
+        ip: req.ip,
+        path: req.path,
+      });
+      return res.status(HTTP.Unauthorized).json({
+        error: "Unauthorized",
+        message: "Invalid token",
+      });
+    }
+
+    logger.error("Authentication error", {
+      error: err.message,
+      ip: req.ip,
+      path: req.path,
+    });
+
+    return res.status(HTTP.InternalServerError).json({
+      error: "Server error",
+      message: "Authentication failed",
+    });
+  }
 };
 
 module.exports = authenticateUser;
-
-

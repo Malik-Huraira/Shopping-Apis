@@ -17,7 +17,7 @@ const startConsumer = async () => {
   await consumer.run({
     eachMessage: async ({ topic, message }) => {
       const data = JSON.parse(message.value.toString());
-      console.log(`📩 [${topic}] Message Received:`, data);
+      logger.info(`📩 [${topic}] Message Received:`, data);
 
       let recipientEmail= "";
       let emailSubject = "";
@@ -67,14 +67,15 @@ const startConsumer = async () => {
       const result = await sendEmail(recipientEmail, emailSubject, emailBody);
       // Log the result
       if (result.success) {
-        console.log(
+        logger.info(
           `✅ Email sent to ${recipientEmail} (messageId: ${result.messageId})`
         );
       } else {
-        console.error(`❌ Email failed to ${recipientEmail}: ${result.error}`);
+        logger.error(`❌ Email failed to ${recipientEmail}: ${result.error}`);
       }
     },
   });
 };
 
 module.exports = { startConsumer };
+

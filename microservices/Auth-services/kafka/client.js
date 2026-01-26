@@ -1,9 +1,9 @@
 // kafka/client.js
-const { Kafka } = require('kafkajs');
+const { Kafka } = require("kafkajs");
 
 const kafka = new Kafka({
-    clientId: 'auth-service', // Give a unique client ID
-    brokers: ['localhost:9092'], // Or your broker IP/hostname
+  clientId: "auth-service",
+  brokers: [process.env.KAFKA_BROKER || "kafka_broker:9092"],
 });
 
 module.exports = kafka;

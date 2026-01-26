@@ -1,77 +1,65 @@
-const redisClient = require('../config/redisClient');
-// Utility function to wrap Redis `keys` method in a promise
-const getKeys = (pattern) => {
-    return new Promise((resolve, reject) => {
-        redisClient.keys(pattern, (err, keys) => {
-            if (err) return reject(err);
-            resolve(keys);
-        });
-    });
-};
+const redisClient = require("../config/redisClient");
+const { logger } = require("./logger");
 
-// Utility function to wrap Redis `del` method in a promise
-const deleteKeys = (keys) => {
-    return new Promise((resolve, reject) => {
-        redisClient.del(keys, (err, result) => {
-            if (err) return reject(err);
-            resolve(result);
-        });
-    });
-};
-
-// Clear product cache
-const clearProductCache = async () => {
-    try {
-        const keys = await getKeys('product:*');
-        if (!keys || keys.length === 0) return;
-
-        const result = await deleteKeys(keys);
-        console.log(`Cleared ${result} product cache entries.`);
-    } catch (err) {
-        console.error('Error clearing product cache:', err);
-    }
-};
-
-// Get cache (with callback)
+/**
+ * Get cached data from Redis
+ * @param {string} key - Cache key
+ * @returns {Promise<string|null>} - Cached data or null
+ */
 const getCache = async (key) => {
-    return new Promise((resolve, reject) => {
-        redisClient.get(key, (err, data) => {
-            if (err) return reject(err);
-            resolve(data ? JSON.parse(data) : null);
-        });
-    });
+  try {
+    return await redisClient.get(key);
+  } catch (error) {
+    logger.error(`Error getting cache for key ${key}:`, error);
+    return null;
+  }
 };
 
-// Set cache with expiration time
-const setCache = (key, value, expirationInSeconds = 3600) => {
-    return new Promise((resolve, reject) => {
-        redisClient.set(key, JSON.stringify(value), 'EX', expirationInSeconds, (err, result) => {
-            if (err) return reject(err);
-            resolve(result);
-        });
-    });
+/**
+ * Set cache data in Redis with expiration
+ * @param {string} key - Cache key
+ * @param {string} value - Data to cache (should be stringified)
+ * @param {number} ttl - Time to live in seconds (default: 300 = 5 minutes)
+ */
+const setCache = async (key, value, ttl = 300) => {
+  try {
+    await redisClient.setEx(key, ttl, value);
+    logger.info(`Cache set for key: ${key}`);
+  } catch (error) {
+    logger.error(`Error setting cache for key ${key}:`, error);
+  }
 };
 
-// Clear order cache
-const clearOrderCache = async (userId = null, orderId = null) => {
-    try {
-        let pattern = 'order:*';
-        if (userId) pattern = `order:user:${userId}:*`;
-        if (orderId) pattern = `order:${orderId}`;
-
-        const keys = await getKeys(pattern);
-        if (keys.length > 0) {
-            const result = await deleteKeys(keys);
-            console.log(`Cleared ${result} order cache keys`);
-        }
-    } catch (err) {
-        console.error('Error clearing order cache:', err);
+/**
+ * Clear order-related cache entries
+ * @param {number} userId - The user ID to clear cache for
+ * @param {number} orderId - The order ID to clear cache for
+ */
+const clearOrderCache = async (userId, orderId) => {
+  try {
+    // Clear specific order cache
+    if (orderId) {
+      await redisClient.del(`order:${orderId}`);
+      logger.info(`Cleared cache for order:${orderId}`);
     }
+
+    // Clear user's order list caches
+    if (userId) {
+      const keys = await redisClient.keys(`order:user:${userId}:*`);
+      if (keys && keys.length > 0) {
+        await redisClient.del(keys);
+        logger.info(
+          `Cleared ${keys.length} order cache entries for user:${userId}`,
+        );
+      }
+    }
+  } catch (error) {
+    logger.error("Error clearing order cache:", error);
+  }
 };
 
 module.exports = {
-    clearProductCache,
-    getCache,
-    setCache,
-    clearOrderCache
+  getCache,
+  setCache,
+  clearOrderCache,
 };

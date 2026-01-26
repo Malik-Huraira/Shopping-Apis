@@ -1,55 +1,29 @@
-// cacheUtils.js
-const redisClient = require('../config/redisClient');
+const redisClient = require("../config/redisClient");
+const { logger } = require("./logger");
 
-const clearProductCache = () => {
-    redisClient.keys('product:*', (err, keys) => {
-        if (err) {
-            console.error('Redis keys error:', err);
-            return;
-        }
+/**
+ * Clear product-related cache entries
+ * @param {number} productId - The product ID to clear cache for
+ */
+const clearProductCache = async (productId) => {
+  try {
+    // Clear specific product cache
+    if (productId) {
+      await redisClient.del(`product:${productId}`);
+      logger.info(`Cleared cache for product:${productId}`);
+    }
 
-        if (!keys || keys.length === 0) return;
-
-        redisClient.del(keys, (err, result) => {
-            if (err) {
-                console.error('Redis del error:', err);
-            } else {
-                console.log(`Cleared ${result} product cache entries.`);
-            }
-        });
-    });
-};
-
-const getCache = (key, callback) => {
-    redisClient.get(key, (err, data) => {
-        if (err) return callback(err);
-        callback(null, data ? JSON.parse(data) : null);
-    });
-};
-
-const setCache = (key, value, expirationInSeconds = 3600) => {
-    redisClient.set(key, JSON.stringify(value), 'EX', expirationInSeconds);
-};
-
-const clearOrderCache = (userId = null, orderId = null) => {
-    let pattern = 'order:*';
-    if (userId) pattern = `order:user:${userId}:*`;
-    if (orderId) pattern = `order:${orderId}`;
-
-    redisClient.keys(pattern, (err, keys) => {
-        if (err) return console.error('Redis keys error:', err);
-        if (keys.length > 0) {
-            redisClient.del(keys, (err, count) => {
-                if (err) return console.error('Redis del error:', err);
-                console.log(`Cleared ${count} order cache keys`);
-            });
-        }
-    });
+    // Clear all product list caches (pagination)
+    const keys = await redisClient.keys("products:page=*");
+    if (keys && keys.length > 0) {
+      await redisClient.del(keys);
+      logger.info(`Cleared ${keys.length} product list cache entries`);
+    }
+  } catch (error) {
+    logger.error("Error clearing product cache:", error);
+  }
 };
 
 module.exports = {
-    clearProductCache,
-    getCache,
-    setCache,
-    clearOrderCache
+  clearProductCache,
 };

@@ -1,34 +1,32 @@
-const path = require('path');
-const fs = require('fs');
-const dotenv = require('dotenv');
+require("dotenv").config();
 
-const env = (process.env.NODE_ENV || 'development').toLowerCase();
-const envFile = `.env.${env}`;
-const envPath = path.join(__dirname, '..', envFile);
+const config = {
+  port: process.env.PORT || 3000,
+  nodeEnv: process.env.NODE_ENV || "development",
 
-// Step 1: Load environment variables
-if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-    console.log(`[CONFIG] Loaded environment variables from ${envFile}`);
-} else {
-    console.warn(`[CONFIG] No ${envFile} found. Falling back to defaults or system environment.`);
-}
+  services: {
+    auth: process.env.AUTH_SERVICE_URL || "http://auth-service:5001",
+    product: process.env.PRODUCT_SERVICE_URL || "http://product-service:5004",
+    order: process.env.ORDER_SERVICE_URL || "http://order-service:5003",
+    user: process.env.USER_SERVICE_URL || "http://user-service:5005",
+    email: process.env.EMAIL_SERVICE_URL || "http://email-service:5002",
+    chat: process.env.CHAT_SERVICE_URL || "http://chat-service:5006",
+  },
 
-// Step 2: Load matching config file
-let config;
-try {
-    config = require(`./environments/${env}`);
-} catch (err) {
-    console.error(`[CONFIG] Failed to load ./environments/${env}.js`);
-    console.error(err.message);
-    process.exit(1);
-}
+  cors: {
+    origin: process.env.CORS_ORIGIN?.split(",") || ["http://localhost:3000"],
+    credentials: true,
+  },
 
-// Step 3: Attach runtime flags
-config.env = env;
-config.isProd = env === 'production';
-config.isTest = env === 'testing';
-config.isDev = env === 'development';
-config.isStage = env === 'staging';
+  logging: {
+    level: process.env.LOG_LEVEL || "info",
+    format: process.env.LOG_FORMAT || "json",
+  },
+
+  proxy: {
+    timeout: 30000,
+    retries: 3,
+  },
+};
 
 module.exports = config;

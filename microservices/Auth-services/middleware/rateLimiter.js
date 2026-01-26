@@ -1,34 +1,30 @@
-const rateLimit = require('express-rate-limit');
-const HTTP = require('../utils/httpStatusCodes'); // Import your HTTP status codes
+const rateLimit = require("express-rate-limit");
 
-// Configuration for the rate limiter
-const createRateLimiter = (options = {}) => {
-    const {
-        windowMs = 15 * 60 * 1000, // 15 minutes
-        max = 10, // Limit each IP to 10 requests per windowMs
-        message = 'Too many requests, please try again later.',
-        skipPaths = [] // Paths to exclude from rate limiting
-    } = options;
-
-    const limiter = rateLimit({
-        windowMs,
-        max,
-        standardHeaders: true, // Sends RateLimit headers (X-RateLimit-*)
-        legacyHeaders: false, // Disable the older X-RateLimit headers
-        message: (req, res) => ({
-            error: message,
-            limit: max,
-            timeWindow: `${windowMs / 60000} minutes`, // Convert windowMs to minutes
-            path: req.originalUrl
-        }),
-        skip: (req) => skipPaths.includes(req.path), // Skip rate limiting for specific paths
-        handler: (req, res, next, options) => {
-            console.warn(`🚫 Rate limit exceeded: ${req.ip} tried accessing ${req.originalUrl}`);
-            res.status(HTTP.TooManyRequests).json(options.message(req, res)); // Send 429 status with custom message
-        }
-    });
-
-    return limiter;
+const createRateLimiter = (windowMs = 15 * 60 * 1000, max = 100) => {
+  return rateLimit({
+    windowMs,
+    max,
+    message: "Too many requests from this IP, please try again later.",
+    standardHeaders: true,
+    legacyHeaders: false,
+    skip: (req) => {
+      // Skip rate limiting for health checks
+      return req.path === "/health";
+    },
+  });
 };
 
-module.exports = createRateLimiter;
+// Strict rate limiter for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 requests per 15 minutes
+  message: "Too many login attempts, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+module.exports = {
+  createRateLimiter,
+  authLimiter,
+};

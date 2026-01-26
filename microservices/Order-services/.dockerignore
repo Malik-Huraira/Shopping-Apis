@@ -1,6 +1,14 @@
 node_modules
 npm-debug.log
-log.txt
-.env
+.git
+.gitignore
 .env.development
-.env.production
+.env.test
+.DS_Store
+.vscode
+.idea
+*.log
+dist
+build
+coverage
+.nyc_output

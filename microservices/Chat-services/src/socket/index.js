@@ -12,7 +12,7 @@ function socketHandler(server) {
   io.use(authenticateSocket);
 
   io.on("connection", (socket) => {
-    console.log(`User ${socket.user.id} connected`);
+    logger.info(`User ${socket.user.id} connected`);
 
     socket.on("private-message", async ({ toUserId, content }) => {
       const message = await Message.create({
@@ -28,9 +28,10 @@ function socketHandler(server) {
     socket.join(socket.user.id.toString());
 
     socket.on("disconnect", () => {
-      console.log(`User ${socket.user.id} disconnected`);
+      logger.info(`User ${socket.user.id} disconnected`);
     });
   });
 }
 
 module.exports = socketHandler;
+

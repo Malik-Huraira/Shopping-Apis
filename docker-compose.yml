@@ -1,0 +1,368 @@
+services:
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql_auth_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: auth
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  mysql-product:
+    image: mysql:8.0
+    container_name: mysql_product_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: products
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_product_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  mysql-order:
+    image: mysql:8.0
+    container_name: mysql_order_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: orders
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql_order_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  mysql-user:
+    image: mysql:8.0
+    container_name: mysql_user_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: users
+    ports:
+      - "3310:3306"
+    volumes:
+      - mysql_user_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  mysql-email:
+    image: mysql:8.0
+    container_name: mysql_email_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: emails
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql_email_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  mysql-chat:
+    image: mysql:8.0
+    container_name: mysql_chat_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      MYSQL_DATABASE: chat
+    ports:
+      - "3312:3306"
+    volumes:
+      - mysql_chat_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka_broker
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - microservices
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - microservices
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  api-gateway:
+    build:
+      context: ./microservices/API-Gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    depends_on:
+      - auth-service
+      - product-service
+      - order-service
+      - user-service
+      - email-service
+      - chat-service
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+      - "3443:3443"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  auth-service:
+    build:
+      context: ./microservices/Auth-services
+      dockerfile: Dockerfile
+    container_name: auth_service
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5001
+      DB_HOST: mysql-auth
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: auth
+      JWT_SECRET: dev-jwt-secret-change-in-production-min-32-chars
+      JWT_EXPIRES_IN: 1d
+      KAFKA_BROKERS: kafka:9092
+      ENABLE_CRON: "true"
+    ports:
+      - "5001:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  product-service:
+    build:
+      context: ./microservices/Product-services
+      dockerfile: Dockerfile
+    container_name: product_service
+    depends_on:
+      mysql-product:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5004
+      DB_HOST: mysql-product
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: products
+      JWT_SECRET: dev-jwt-secret-change-in-production-min-32-chars
+      KAFKA_BROKERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "5004:5004"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5004/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  order-service:
+    build:
+      context: ./microservices/Order-services
+      dockerfile: Dockerfile
+    container_name: order_service
+    depends_on:
+      mysql-order:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5003
+      DB_HOST: mysql-order
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: orders
+      JWT_SECRET: ${JWT_SECRET:-generate-secure-random-key-in-production}
+      KAFKA_BROKERS: kafka:9092
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      PRODUCT_SERVICE_URL: http://product-service:5004
+    ports:
+      - "5003:5003"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  user-service:
+    build:
+      context: ./microservices/User-services
+      dockerfile: Dockerfile
+    container_name: user_service
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5005
+      DB_HOST: mysql-user
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: users
+      JWT_SECRET: dev-jwt-secret-change-in-production-min-32-chars
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "5005:5005"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  email-service:
+    build:
+      context: ./microservices/EmailNotification-services
+      dockerfile: Dockerfile
+    container_name: email_service
+    depends_on:
+      mysql-email:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5002
+      DB_HOST: mysql-email
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: emails
+      JWT_SECRET: dev-jwt-secret-change-in-production-min-32-chars
+      KAFKA_BROKERS: kafka:9092
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+    ports:
+      - "5002:5002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+  chat-service:
+    build:
+      context: ./microservices/Chat-services
+      dockerfile: Dockerfile
+    container_name: chat_service
+    depends_on:
+      mysql-chat:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 5006
+      DB_HOST: mysql-chat
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-SecureRoot@2024}
+      DB_NAME: chat
+    ports:
+      - "5006:5006"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
+      timeout: 20s
+      retries: 10
+    networks:
+      - microservices
+
+volumes:
+  mysql_auth_data:
+  mysql_product_data:
+  mysql_order_data:
+  mysql_user_data:
+  mysql_email_data:
+  mysql_chat_data:
+
+networks:
+  microservices:
+    driver: bridge

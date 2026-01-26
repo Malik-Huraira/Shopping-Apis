@@ -1,141 +1,162 @@
-const userModel = require('../model/userModel');
-const bcrypt = require('bcryptjs');
-const HTTP = require('../utils/httpStatusCodes');
+const userModel = require("../model/userModel");
+const bcrypt = require("bcryptjs");
+const HTTP = require("../utils/httpStatusCodes");
 const notifyNewUser = require("../events/notifyAdmin");
+const { logger } = require("../utils/logger");
 
 const createUser = async (req, res) => {
-    const { name, email, password, phone_number, status, role, address, description } = req.body;
+  const {
+    name,
+    email,
+    password,
+    phone_number,
+    status,
+    role,
+    address,
+    description,
+  } = req.body;
 
-    if (!name || !email || !password || !role || !phone_number) {
-        return res.status(HTTP.BadRequest).json({
-            error: "Name, Email, Password, Role, and Phone Number are required",
-        });
+  if (!name || !email || !password || !role || !phone_number) {
+    return res.status(HTTP.BadRequest).json({
+      error: "Name, Email, Password, Role, and Phone Number are required",
+    });
+  }
+  logger.info("Creating user with data:", req.body);
+  try {
+    const [existingUser, existingPhone] = await Promise.all([
+      userModel.findUserByEmail(email),
+      userModel.findUserByPhone(phone_number),
+    ]);
+
+    if (existingUser || existingPhone) {
+      const reason = existingUser
+        ? "User with this email already exists"
+        : "Phone number already exists";
+      return res.status(HTTP.BadRequest).json({ error: reason });
     }
-    console.log("Creating user with data:", req.body);
-    try {
-        const [existingUser, existingPhone] = await Promise.all([
-            userModel.findUserByEmail(email),
-            userModel.findUserByPhone(phone_number),
-        ]);
 
-        if (existingUser || existingPhone) {
-            const reason = existingUser ? "User with this email already exists" : "Phone number already exists";
-            return res.status(HTTP.BadRequest).json({ error: reason });
-        }
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-        const hashedPassword = await bcrypt.hash(password, 12);
+    const userId = await userModel.createUser({
+      name,
+      email,
+      password: hashedPassword,
+      phone_number,
+      status,
+      role,
+      address,
+      description,
+    });
 
-        const userId = await userModel.createUser({
-            name,
-            email,
-            password: hashedPassword,
-            phone_number,
-            status,
-            role,
-            address,
-            description
-        });
+    await notifyNewUser({
+      id: userId,
+      name,
+      email,
+      phone_number,
+      status,
+      role,
+      address,
+      description,
+    });
+    logger.info("User created with ID:", userId);
 
-        await notifyNewUser({
-            id: userId,
-            name,       
-            email,
-            phone_number,
-            status,
-            role,
-            address,
-            description
-        });
-        console.log("User created with ID:", userId);
-        // Notify admin about new user
-        // await notifyNewUser(userId);
-
-        res.status(HTTP.Created).json({ message: "User added successfully", id: userId });
-    } catch (err) {
-        console.error("Create User Error:", err);
-        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
-    }
+    res
+      .status(HTTP.Created)
+      .json({ message: "User added successfully", id: userId });
+  } catch (err) {
+    logger.error("Create User Error:", err);
+    res
+      .status(HTTP.InternalServerError)
+      .json({ error: "Database error", details: err.message });
+  }
 };
-
 
 // Get paginated list of users
 const getAllUsers = async (req, res) => {
-    let { page = 1, limit = 10 } = req.query;
-    page = parseInt(page);
-    limit = parseInt(limit);
-    const offset = (page - 1) * limit;
+  let { page = 1, limit = 10 } = req.query;
+  page = parseInt(page);
+  limit = parseInt(limit);
+  const offset = (page - 1) * limit;
 
-    try {
-        const [users, totalUsers] = await Promise.all([
-            userModel.getPaginatedUsers(limit, offset),
-            userModel.getTotalUsersCount()
-        ]);
+  try {
+    const [users, totalUsers] = await Promise.all([
+      userModel.getPaginatedUsers(limit, offset),
+      userModel.getTotalUsersCount(),
+    ]);
 
-        res.status(HTTP.OK).json({
-            users,
-            currentPage: page,
-            totalPages: Math.ceil(totalUsers / limit),
-            totalUsers,
-            limit
-        });
-    } catch (err) {
-        console.error("Get All Users Error:", err);
-        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
-    }
+    res.status(HTTP.OK).json({
+      users,
+      currentPage: page,
+      totalPages: Math.ceil(totalUsers / limit),
+      totalUsers,
+      limit,
+    });
+  } catch (err) {
+    logger.error("Get All Users Error:", err);
+    res
+      .status(HTTP.InternalServerError)
+      .json({ error: "Database error", details: err.message });
+  }
 };
 
 // Get user by ID
 const getUserById = async (req, res) => {
-    try {
-        const user = await userModel.getUserById(req.params.id);
+  try {
+    const user = await userModel.getUserById(req.params.id);
 
-        if (!user) {
-            return res.status(HTTP.NotFound).json({ message: "User not found" });
-        }
-
-        res.status(HTTP.OK).json(user);
-    } catch (err) {
-        console.error("Get User By ID Error:", err);
-        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
+    if (!user) {
+      return res.status(HTTP.NotFound).json({ message: "User not found" });
     }
+
+    res.status(HTTP.OK).json(user);
+  } catch (err) {
+    logger.error("Get User By ID Error:", err);
+    res
+      .status(HTTP.InternalServerError)
+      .json({ error: "Database error", details: err.message });
+  }
 };
 
 // Update user
 const updateUser = async (req, res) => {
-    try {
-        const affectedRows = await userModel.updateUser(req.params.id, req.body);
+  try {
+    const affectedRows = await userModel.updateUser(req.params.id, req.body);
 
-        if (affectedRows === 0) {
-            return res.status(HTTP.NotFound).json({ message: "User not found" });
-        }
-
-        res.status(HTTP.OK).json({ message: "User updated successfully" });
-    } catch (err) {
-        console.error("Update User Error:", err);
-        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
+    if (affectedRows === 0) {
+      return res.status(HTTP.NotFound).json({ message: "User not found" });
     }
+
+    res.status(HTTP.OK).json({ message: "User updated successfully" });
+  } catch (err) {
+    logger.error("Update User Error:", err);
+    res
+      .status(HTTP.InternalServerError)
+      .json({ error: "Database error", details: err.message });
+  }
 };
 
 // Delete user
 const deleteUser = async (req, res) => {
-    try {
-        const affectedRows = await userModel.deleteUser(req.params.id);
+  try {
+    const affectedRows = await userModel.deleteUser(req.params.id);
 
-        if (affectedRows === 0) {
-            return res.status(HTTP.NotFound).json({ message: "User not found" });
-        }
-
-        res.status(HTTP.OK).json({ message: "User deleted successfully" });
-    } catch (err) {
-        console.error("Delete User Error:", err);
-        res.status(HTTP.InternalServerError).json({ error: "Database error", details: err.message });
+    if (affectedRows === 0) {
+      return res.status(HTTP.NotFound).json({ message: "User not found" });
     }
+
+    res.status(HTTP.OK).json({ message: "User deleted successfully" });
+  } catch (err) {
+    logger.error("Delete User Error:", err);
+    res
+      .status(HTTP.InternalServerError)
+      .json({ error: "Database error", details: err.message });
+  }
 };
 
 module.exports = {
-    createUser,
-    getAllUsers,
-    getUserById,
-    updateUser,
-    deleteUser
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
 };

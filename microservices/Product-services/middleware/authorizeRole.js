@@ -1,21 +1,25 @@
-const HTTP = require('../utils/httpStatusCodes'); // Import HTTP status codes
+const HTTP = require("../utils/httpStatusCodes");
+const { logger } = require("../utils/logger");
 
 const authorizeRoles = (...roles) => {
-    return (req, res, next) => {
+  return (req, res, next) => {
+    const user = req.user;
+    logger.info("User in authorizeRoles middleware:", user);
 
-        const user = req.user;
-        console.log("User in authorizeRoles middleware:", user);
+    if (!user) {
+      return res
+        .status(HTTP.Unauthorized)
+        .json({ error: "Unauthorized - No User Data" });
+    }
 
-        if (!user) {
-            return res.status(HTTP.Unauthorized).json({ error: "Unauthorized - No User Data" });
-        }
+    if (!roles.includes(user.role)) {
+      return res
+        .status(HTTP.Forbidden)
+        .json({ error: "Forbidden - Insufficient Permissions" });
+    }
 
-        if (!roles.includes(user.role)) {
-            return res.status(HTTP.Forbidden).json({ error: "Forbidden - Insufficient Permissions" });
-        }
-
-        next();
-    };
+    next();
+  };
 };
 
 module.exports = authorizeRoles;
